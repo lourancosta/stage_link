@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/StageLink.Protocol/StageLink.Protocol.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/StageLink.Protocol.Tests/StageLink.Protocol.Tests.csproj" />
+  </Folder>
+</Solution>
