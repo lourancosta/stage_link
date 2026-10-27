@@ -483,3 +483,7 @@ $RECYCLE.BIN/
 
 # Personal study notes (not part of the project)
 doc/
+
+# Claude Code instructions (private, only for me)
+CLAUDE.md
+**/CLAUDE.md
