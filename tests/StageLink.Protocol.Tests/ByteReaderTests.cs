@@ -53,4 +53,24 @@ public class ByteReaderTests
         // Assert
         Assert.Equal(12.5, gain);
     }
+
+    [Fact]
+    public void ReadByte_ThrowsWhenNoDataLeft()
+    {
+        // Arrange
+        var reader = new ByteReader([]);
+
+        // Act + Assert
+        Assert.Throws<EndOfStreamException>(() => reader.ReadByte());
+    }
+
+    [Fact]
+    public void ReadInt16_ThrowsWhenOnlyOneByteLeft()
+    {
+        // Arrange
+        var reader = new ByteReader([0x12]);
+
+        // Act + Assert
+        Assert.Throws<EndOfStreamException>(() => reader.ReadInt16());
+    }
 }

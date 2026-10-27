@@ -12,6 +12,11 @@ public class ByteReader
 
     public byte ReadByte()
     {
+        if (_position >= _data.Length)
+        {
+            throw new EndOfStreamException("No more bytes to read.");
+        }
+
         byte value = _data[_position];
         _position++;
         return value;
