@@ -16,4 +16,16 @@ public class ByteReader
         _position++;
         return value;
     }
+
+    public short ReadInt16()
+    {
+        byte high = ReadByte();
+        byte low = ReadByte();
+        return (short)((high << 8) | low);
+    }
+
+    public double ReadFixedPoint()
+    {
+        return FixedPoint.FromWire(ReadInt16());
+    }
 }
