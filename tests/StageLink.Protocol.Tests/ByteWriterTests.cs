@@ -78,4 +78,41 @@ public class ByteWriterTests
 
         Assert.Equal([0xFD, 0xE8], writer.ToArray());
     }
+
+    [Fact]
+    public void WriteString_WritesLengthThenAscii()
+    {
+        var writer = new ByteWriter();
+
+        writer.WriteString("L1");
+
+        // 2 characters, then 'L' (76) and '1' (49)
+        Assert.Equal([0x02, 0x4C, 0x31], writer.ToArray());
+    }
+
+    [Fact]
+    public void WriteString_WritesZeroLengthForEmptyText()
+    {
+        var writer = new ByteWriter();
+
+        writer.WriteString("");
+
+        Assert.Equal([0x00], writer.ToArray());
+    }
+
+    [Fact]
+    public void WriteString_ThrowsWhenLongerThan255Characters()
+    {
+        var writer = new ByteWriter();
+
+        Assert.Throws<ArgumentException>(() => writer.WriteString(new string('A', 256)));
+    }
+
+    [Fact]
+    public void WriteString_ThrowsOnNonAsciiCharacters()
+    {
+        var writer = new ByteWriter();
+
+        Assert.Throws<ArgumentException>(() => writer.WriteString("Café"));
+    }
 }

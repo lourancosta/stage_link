@@ -81,4 +81,29 @@ public class ByteReaderTests
 
         Assert.Equal(65000, reader.ReadUInt16());
     }
+
+    [Fact]
+    public void ReadString_ReadsLengthThenAscii()
+    {
+        var reader = new ByteReader([0x02, 0x4C, 0x31]);
+
+        Assert.Equal("L1", reader.ReadString());
+    }
+
+    [Fact]
+    public void ReadString_ThrowsWhenTextIsTruncated()
+    {
+        // Length says 3 characters, but only 2 follow
+        var reader = new ByteReader([0x03, 0x4C, 0x31]);
+
+        Assert.Throws<EndOfStreamException>(() => reader.ReadString());
+    }
+
+    [Fact]
+    public void ReadString_ThrowsOnNonAsciiBytes()
+    {
+        var reader = new ByteReader([0x01, 0xE9]);
+
+        Assert.Throws<InvalidDataException>(() => reader.ReadString());
+    }
 }

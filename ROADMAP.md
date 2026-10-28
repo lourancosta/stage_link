@@ -18,7 +18,7 @@
 - [x] `SpeakerState`: name, gain, mute, tilt, with range validation
 - [x] `NackCode` enum + `Speaker.Handle(Frame)`: Ping → Pong, unsupported → Nack
 - [x] SetGain / SetMute / SetTilt → Ack, or Nack on bad payload or out-of-range value
-- [ ] GetState → State (adds `WriteString` / `ReadString` to the protocol)
+- [x] GetState → State (adds `WriteString` / `ReadString` to the protocol)
 - [ ] TCP server: accept the app's connection and read frames from the byte stream
 - [ ] Subscribe / Unsubscribe / Telemetry (timed updates)
 - [ ] Announce over UDP (so the app can discover speakers)

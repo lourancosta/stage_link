@@ -1,3 +1,5 @@
+using System.Text;
+
 namespace StageLink.Protocol;
 
 public class ByteReader
@@ -37,5 +39,23 @@ public class ByteReader
     public double ReadFixedPoint()
     {
         return FixedPoint.FromWire(ReadInt16());
+    }
+
+    public string ReadString()
+    {
+        byte length = ReadByte();
+
+        byte[] characters = new byte[length];
+        for (int i = 0; i < length; i++)
+        {
+            characters[i] = ReadByte();
+        }
+
+        if (!Ascii.IsValid(characters))
+        {
+            throw new InvalidDataException("Text contains non-ASCII bytes.");
+        }
+
+        return Encoding.ASCII.GetString(characters);
     }
 }

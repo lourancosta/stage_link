@@ -159,4 +159,38 @@ public class SpeakerTests
 
         AssertNack(reply, 32, NackCode.InvalidPayload);
     }
+
+    // GetState
+
+    [Fact]
+    public void Handle_GetState_RepliesWithCurrentState()
+    {
+        // Arrange
+        _state.SetGain(-6.5);
+        _state.SetMute(true);
+        _state.SetTilt(7.5);
+
+        // Act
+        Frame reply = _speaker.Handle(new Frame(Command.GetState, 40, []));
+
+        // Assert
+        Assert.Equal(Command.State, reply.Command);
+        Assert.Equal(40, reply.MessageNumber);
+        Assert.Equal(
+            [
+                0x06, 0x4D, 0x61, 0x69, 0x6E, 0x20, 0x4C, // name: 6 characters, "Main L"
+                0xFD, 0x76,                               // gain: -6.5 dB  (-650)
+                0x01,                                     // mute: on
+                0x02, 0xEE,                               // tilt: 7.5 degrees (750)
+            ],
+            reply.Payload);
+    }
+
+    [Fact]
+    public void Handle_GetState_WithPayload_Nacks()
+    {
+        Frame reply = _speaker.Handle(new Frame(Command.GetState, 41, [0x00]));
+
+        AssertNack(reply, 41, NackCode.InvalidPayload);
+    }
 }
