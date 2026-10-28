@@ -4,6 +4,8 @@ namespace StageLink.Simulator;
 
 public class Speaker
 {
+    private const int FixedPointSize = 2;
+
     private readonly SpeakerState _state;
 
     public Speaker(SpeakerState state)
@@ -16,13 +18,56 @@ public class Speaker
         return request.Command switch
         {
             Command.Ping => Reply(request, Command.Pong, []),
+            Command.SetGain => HandleFixedPointSetting(request, _state.SetGain),
+            Command.SetMute => HandleSetMute(request),
+            Command.SetTilt => HandleFixedPointSetting(request, _state.SetTilt),
             _ => Nack(request, NackCode.UnsupportedCommand),
         };
+    }
+
+    // Shared by SetGain and SetTilt: both carry one fixed-point value.
+    private static Frame HandleFixedPointSetting(Frame request, Action<double> apply)
+    {
+        byte[] payload = request.Payload;
+        if (payload.Length != FixedPointSize)
+        {
+            return Nack(request, NackCode.InvalidPayload);
+        }
+
+        double value = new ByteReader(payload).ReadFixedPoint();
+
+        try
+        {
+            apply(value);
+        }
+        catch (ArgumentOutOfRangeException)
+        {
+            return Nack(request, NackCode.ValueOutOfRange);
+        }
+
+        return Ack(request);
+    }
+
+    private Frame HandleSetMute(Frame request)
+    {
+        byte[] payload = request.Payload;
+        if (payload.Length != 1 || payload[0] > 1)
+        {
+            return Nack(request, NackCode.InvalidPayload);
+        }
+
+        _state.SetMute(payload[0] == 1);
+        return Ack(request);
     }
 
     private static Frame Reply(Frame request, Command command, byte[] payload)
     {
         return new Frame(command, request.MessageNumber, payload);
+    }
+
+    private static Frame Ack(Frame request)
+    {
+        return Reply(request, Command.Ack, []);
     }
 
     private static Frame Nack(Frame request, NackCode code)

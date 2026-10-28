@@ -14,10 +14,10 @@
   - [x] Remove the v1 `Checksum`
 
 ## Phase 2: Speaker simulator (C#)
-- [ ] Project setup: `StageLink.Simulator` library + `StageLink.Simulator.Tests`
-- [ ] `SpeakerState`: name, gain, mute, tilt, with range validation
-- [ ] `NackCode` enum + `Speaker.Handle(Frame)`: Ping → Pong, unsupported → Nack
-- [ ] SetGain / SetMute / SetTilt → Ack, or Nack on bad payload or out-of-range value
+- [x] Project setup: `StageLink.Simulator` library + `StageLink.Simulator.Tests`
+- [x] `SpeakerState`: name, gain, mute, tilt, with range validation
+- [x] `NackCode` enum + `Speaker.Handle(Frame)`: Ping → Pong, unsupported → Nack
+- [x] SetGain / SetMute / SetTilt → Ack, or Nack on bad payload or out-of-range value
 - [ ] GetState → State (adds `WriteString` / `ReadString` to the protocol)
 - [ ] TCP server: accept the app's connection and read frames from the byte stream
 - [ ] Subscribe / Unsubscribe / Telemetry (timed updates)
