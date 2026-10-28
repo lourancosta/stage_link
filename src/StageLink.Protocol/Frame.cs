@@ -2,39 +2,45 @@ namespace StageLink.Protocol;
 
 public class Frame
 {
-    public const byte Header = 0xAA;
+    public const ushort StartMarker = 0x534C; // "SL"
+    public const byte Version = 1;
 
-    public Command Command { get; }
+    // Start marker (2) + version (1) + command (1) + message number (2) + length (2)
+    private const int HeaderSize = 8;
 
     private readonly byte[] _payload;
+
+    public Command Command { get; }
+    public ushort MessageNumber { get; }
     public byte[] Payload => [.. _payload];
 
-    public Frame(Command command, byte[] payload)
+    public Frame(Command command, ushort messageNumber, byte[] payload)
     {
-        if (payload.Length > byte.MaxValue)
+        if (payload.Length > ushort.MaxValue)
         {
-            throw new ArgumentException("Payload cannot be longer than 255 bytes", nameof(payload));
+            throw new ArgumentException("Payload cannot be longer than 65535 bytes.", nameof(payload));
         }
 
         Command = command;
+        MessageNumber = messageNumber;
         _payload = [.. payload];
     }
 
     public byte[] Encode()
     {
-        byte length = (byte)_payload.Length;
-
         var writer = new ByteWriter();
-        writer.WriteByte(Header);
+        writer.WriteUInt16(StartMarker);
+        writer.WriteByte(Version);
         writer.WriteByte((byte)Command);
-        writer.WriteByte(length);
+        writer.WriteUInt16(MessageNumber);
+        writer.WriteUInt16((ushort)_payload.Length);
 
         foreach (byte value in _payload)
         {
             writer.WriteByte(value);
         }
 
-        writer.WriteByte(ComputeChecksum(Command, _payload));
+        writer.WriteUInt16(Crc16.Compute(writer.ToArray()));
 
         return writer.ToArray();
     }
@@ -45,9 +51,15 @@ public class Frame
         {
             var reader = new ByteReader(bytes);
 
-            if (reader.ReadByte() != Header)
+            if (reader.ReadUInt16() != StartMarker)
             {
-                throw new InvalidFrameException("Frame does not start with the header byte");
+                throw new InvalidFrameException("Frame does not start with the start marker.");
+            }
+
+            byte version = reader.ReadByte();
+            if (version != Version)
+            {
+                throw new InvalidFrameException($"Unsupported protocol version: {version}.");
             }
 
             var command = (Command)reader.ReadByte();
@@ -56,29 +68,26 @@ public class Frame
                 throw new InvalidFrameException($"Unknown command: 0x{(byte)command:X2}.");
             }
 
-            byte length = reader.ReadByte();
+            ushort messageNumber = reader.ReadUInt16();
+            ushort length = reader.ReadUInt16();
+
             byte[] payload = new byte[length];
             for (int i = 0; i < length; i++)
             {
                 payload[i] = reader.ReadByte();
             }
 
-            byte checksum = reader.ReadByte();
-            if (checksum != ComputeChecksum(command, payload))
+            ushort crc = reader.ReadUInt16();
+            if (crc != Crc16.Compute(bytes[..(HeaderSize + length)]))
             {
-                throw new InvalidFrameException("Checksum does not match");
+                throw new InvalidFrameException("CRC does not match.");
             }
 
-            return new Frame(command, payload);
+            return new Frame(command, messageNumber, payload);
         }
         catch (EndOfStreamException ex)
         {
-            throw new InvalidFrameException("Frame is imcomplete", ex);
+            throw new InvalidFrameException("Frame is incomplete.", ex);
         }
-    }
-
-    private static byte ComputeChecksum(Command command, byte[] payload)
-    {
-        return Checksum.Compute([(byte)command, (byte)payload.Length, .. payload]);
     }
 }
