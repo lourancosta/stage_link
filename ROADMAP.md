@@ -5,10 +5,10 @@
 - [x] `FixedPoint`: convert values to/from 16-bit wire format (x100)
 - [x] `ByteWriter`: write bytes, 16-bit big-endian values and fixed-point values into a message buffer
 - [x] `ByteReader`: read bytes, 16-bit big-endian values and fixed-point values, with a clear error on truncated data
-- [ ] Message format and commands (see "Protocol format" below)
+- [x] Message format and commands (see "Protocol format" below)
   - [x] `Command` enum
   - [x] `Checksum` (XOR)
-  - [ ] `Frame` encode / decode with header and checksum validation
+  - [x] `Frame` encode / decode with header and checksum validation
 
 ## Phase 2: Speaker simulator (C#)
 - [ ] Simulated speaker that receives and answers commands

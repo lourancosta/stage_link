@@ -55,4 +55,33 @@ public class FrameTests
         Assert.Throws<InvalidFrameException>(
             () => Frame.Decode([0xAA, 0x09, 0x00, 0x09]));
     }
+
+    [Fact]
+    public void Decode_ThrowsOnTruncatedFrame()
+    {
+        // Valid frame with the checksum byte missing
+        Assert.Throws<InvalidFrameException>(
+            () => Frame.Decode([0xAA, 0x01, 0x03, 0x01, 0x04, 0xE2]));
+    }
+
+    [Fact]
+    public void Payload_CannotBeChangedFromOutside()
+    {
+        var frame = new Frame(Command.SetGain, [0x01, 0x04, 0xE2]);
+
+        frame.Payload[0] = 0xFF;
+
+        Assert.Equal([0x01, 0x04, 0xE2], frame.Payload);
+    }
+
+    [Fact]
+    public void Constructor_CopiesPayload()
+    {
+        byte[] original = [0x01, 0x04, 0xE2];
+        var frame = new Frame(Command.SetGain, original);
+
+        original[0] = 0xFF;
+
+        Assert.Equal([0x01, 0x04, 0xE2], frame.Payload);
+    }
 }
