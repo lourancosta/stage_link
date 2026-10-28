@@ -6,7 +6,8 @@ public class Frame
     public const byte Version = 1;
 
     // Start marker (2) + version (1) + command (1) + message number (2) + length (2)
-    private const int HeaderSize = 8;
+    public const int HeaderSize = 8;
+    public const int CrcSize = 2;
 
     private readonly byte[] _payload;
 
