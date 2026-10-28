@@ -6,12 +6,12 @@
 - [x] `ByteWriter`: write bytes, 16-bit big-endian values and fixed-point values into a message buffer
 - [x] `ByteReader`: read bytes, 16-bit big-endian values and fixed-point values, with a clear error on truncated data
 - [x] Message format v1 (simple prototype: `AA` header, XOR checksum)
-- [ ] Message format v2, the full design (see "Protocol format" below)
-  - [ ] `WriteUInt16` / `ReadUInt16` for unsigned 16-bit fields
-  - [ ] `Crc16` (CRC-16/CCITT-FALSE)
-  - [ ] `Command` enum with the full message list
-  - [ ] `Frame` v2: start marker, version, message number, 16-bit length, CRC
-  - [ ] Remove the v1 `Checksum`
+- [x] Message format v2, the full design (see "Protocol format" below)
+  - [x] `WriteUInt16` / `ReadUInt16` for unsigned 16-bit fields
+  - [x] `Crc16` (CRC-16/CCITT-FALSE)
+  - [x] `Command` enum with the full message list
+  - [x] `Frame` v2: start marker, version, message number, 16-bit length, CRC
+  - [x] Remove the v1 `Checksum`
 
 ## Phase 2: Speaker simulator (C#)
 - [ ] Simulated speaker that receives and answers commands
