@@ -20,7 +20,7 @@
 - [x] SetGain / SetMute / SetTilt → Ack, or Nack on bad payload or out-of-range value
 - [x] GetState → State (adds `WriteString` / `ReadString` to the protocol)
 - [x] `FrameReader`: read complete frames from a byte stream (resync on start marker, split/merged packets)
-- [ ] TCP server: console host that accepts the app's connection and answers frames
+- [x] TCP server: `SpeakerServer` + `StageLink.Simulator.Host` console app
 - [ ] Subscribe / Unsubscribe / Telemetry (timed updates)
 - [ ] Announce over UDP (so the app can discover speakers)
 
@@ -60,6 +60,8 @@ Example: SetGain −6.5 dB, message number 1 →
 `53 4C 01 20 00 01 00 02 FD 76 CA 6B`
 
 ## Simulator rules
+
+Run it: `dotnet run --project src/StageLink.Simulator.Host [port] [name]` (default port `51000`, name `Main L`). Ctrl+C stops it.
 
 | Setting | Range | Default |
 |---------|-------|---------|

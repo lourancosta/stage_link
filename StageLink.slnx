@@ -1,6 +1,7 @@
 <Solution>
   <Folder Name="/src/">
     <Project Path="src/StageLink.Protocol/StageLink.Protocol.csproj" />
+    <Project Path="src/StageLink.Simulator.Host/StageLink.Simulator.Host.csproj" />
     <Project Path="src/StageLink.Simulator/StageLink.Simulator.csproj" />
   </Folder>
   <Folder Name="/tests/">
