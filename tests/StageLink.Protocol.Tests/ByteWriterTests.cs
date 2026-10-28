@@ -68,4 +68,14 @@ public class ByteWriterTests
         // Assert
         Assert.Equal([0x04, 0xE2], writer.ToArray());
     }
+
+    [Fact]
+    public void WriteUInt16_WritesValuesAboveShortRange()
+    {
+        var writer = new ByteWriter();
+
+        writer.WriteUInt16(65000);
+
+        Assert.Equal([0xFD, 0xE8], writer.ToArray());
+    }
 }

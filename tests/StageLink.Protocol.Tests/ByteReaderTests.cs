@@ -73,4 +73,12 @@ public class ByteReaderTests
         // Act + Assert
         Assert.Throws<EndOfStreamException>(() => reader.ReadInt16());
     }
+
+    [Fact]
+    public void ReadUInt16_ReadsValuesAboveShortRange()
+    {
+        var reader = new ByteReader([0xFD, 0xE8]);
+
+        Assert.Equal(65000, reader.ReadUInt16());
+    }
 }

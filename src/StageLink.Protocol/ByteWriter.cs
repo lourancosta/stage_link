@@ -14,10 +14,15 @@ public class ByteWriter
         _buffer.Add(value);
     }
 
-    public void WriteInt16(short value)
+    public void WriteUInt16(ushort value)
     {
         WriteByte((byte)(value >> 8)); // High byte
         WriteByte((byte)(value & 0xFF)); // Low byte
+    }
+
+    public void WriteInt16(short value)
+    {
+        WriteUInt16((ushort)value);
     }
 
     public void WriteFixedPoint(double value)

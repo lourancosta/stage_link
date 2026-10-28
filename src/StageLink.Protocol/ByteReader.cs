@@ -22,11 +22,16 @@ public class ByteReader
         return value;
     }
 
-    public short ReadInt16()
+    public ushort ReadUInt16()
     {
         byte high = ReadByte();
         byte low = ReadByte();
-        return (short)((high << 8) | low);
+        return (ushort)((high << 8) | low);
+    }
+
+    public short ReadInt16()
+    {
+        return (short)ReadUInt16();
     }
 
     public double ReadFixedPoint()
