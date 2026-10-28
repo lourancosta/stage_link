@@ -76,4 +76,30 @@ public class SpeakerStateTests
 
         Assert.Throws<ArgumentOutOfRangeException>(() => state.SetTilt(tilt));
     }
+
+    [Fact]
+    public void Constructor_ThrowsOnEmptyName()
+    {
+        Assert.Throws<ArgumentException>(() => new SpeakerState(""));
+    }
+
+    [Fact]
+    public void Constructor_ThrowsWhenNameLongerThan255Characters()
+    {
+        Assert.Throws<ArgumentException>(() => new SpeakerState(new string('A', 256)));
+    }
+
+    [Fact]
+    public void Constructor_AcceptsNameOf255Characters()
+    {
+        var state = new SpeakerState(new string('A', 255));
+
+        Assert.Equal(255, state.Name.Length);
+    }
+
+    [Fact]
+    public void Constructor_ThrowsOnNonAsciiName()
+    {
+        Assert.Throws<ArgumentException>(() => new SpeakerState("Café"));
+    }
 }

@@ -8,7 +8,17 @@ const int DefaultPort = 51000;
 int port = args.Length > 0 ? int.Parse(args[0]) : DefaultPort;
 string name = args.Length > 1 ? args[1] : "Main L";
 
-var state = new SpeakerState(name);
+SpeakerState state;
+try
+{
+    state = new SpeakerState(name);
+}
+catch (ArgumentException ex)
+{
+    Console.Error.WriteLine($"Invalid speaker name \"{name}\": {ex.Message}");
+    return 1;
+}
+
 var server = new SpeakerServer(new Speaker(state), IPAddress.Any, port, Console.Out);
 
 // Ctrl+C stops the server cleanly instead of killing the process.

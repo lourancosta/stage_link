@@ -1,3 +1,5 @@
+using System.Text;
+
 namespace StageLink.Simulator;
 
 public class SpeakerState
@@ -12,8 +14,20 @@ public class SpeakerState
     public bool Muted { get; private set; }
     public double Tilt { get; private set; }
 
+    // The name is sent in the State reply as 1 length byte + ASCII characters,
+    // so it must fit those rules.
     public SpeakerState(string name)
     {
+        if (name.Length == 0 || name.Length > byte.MaxValue)
+        {
+            throw new ArgumentException("Name must be 1 to 255 characters long.", nameof(name));
+        }
+
+        if (!Ascii.IsValid(name))
+        {
+            throw new ArgumentException("Name must contain only ASCII characters.", nameof(name));
+        }
+
         Name = name;
     }
 
