@@ -14,7 +14,14 @@
   - [x] Remove the v1 `Checksum`
 
 ## Phase 2: Speaker simulator (C#)
-- [ ] Simulated speaker that receives and answers commands
+- [ ] Project setup: `StageLink.Simulator` library + `StageLink.Simulator.Tests`
+- [ ] `SpeakerState`: name, gain, mute, tilt, with range validation
+- [ ] `NackCode` enum + `Speaker.Handle(Frame)`: Ping → Pong, unsupported → Nack
+- [ ] SetGain / SetMute / SetTilt → Ack, or Nack on bad payload or out-of-range value
+- [ ] GetState → State (adds `WriteString` / `ReadString` to the protocol)
+- [ ] TCP server: accept the app's connection and read frames from the byte stream
+- [ ] Subscribe / Unsubscribe / Telemetry (timed updates)
+- [ ] Announce over UDP (so the app can discover speakers)
 
 ## Phase 3: Desktop app (Electron + React + TypeScript)
 - [ ] Connect to the simulator
@@ -50,3 +57,26 @@ Gain and tilt are fixed-point (value x 100, 16-bit signed).
 
 Example: SetGain −6.5 dB, message number 1 →
 `53 4C 01 20 00 01 00 02 FD 76 CA 6B`
+
+## Simulator rules
+
+| Setting | Range | Default |
+|---------|-------|---------|
+| Gain    | −60.00 to +12.00 dB | 0.00 |
+| Tilt    | −15.00 to +15.00 degrees | 0.00 |
+| Mute    | on / off | off |
+
+Every reply copies the request's message number.
+
+| Reply | Data |
+|-------|------|
+| Pong  | none |
+| Ack   | none |
+| Nack  | 1 byte error code |
+| State | name (1 byte length + ASCII characters), gain (2), mute (1), tilt (2) |
+
+| Nack code | Meaning |
+|-----------|---------|
+| `0x01` | Unsupported command (the speaker doesn't accept this message) |
+| `0x02` | Invalid payload (wrong number of data bytes, or mute not 0/1) |
+| `0x03` | Value out of range |
