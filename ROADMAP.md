@@ -43,7 +43,7 @@ Browsers can't open raw TCP connections or listen for UDP, so the backend is the
 - [x] Project setup: `StageLink.Web` (ASP.NET Core, http://localhost:5080) + `StageLink.Web.Tests`
 - [x] Discovery: background service that listens for Announce on UDP and keeps a list of speakers by id (removed after 6 s of silence); `GET /api/speakers`
 - [x] `SpeakerConnection`: TCP client to one speaker; matches each reply to its request by message number, with timeouts; receives Telemetry
-- [ ] `SpeakerClient`: typed commands (GetState, SetGain, SetMute, SetTilt, Subscribe); a Nack becomes a clear error
+- [x] `SpeakerClient`: typed commands (GetState, SetGain, SetMute, SetTilt, Subscribe); a Nack becomes a clear error
 - [ ] HTTP API: list speakers, read state, change gain / mute / tilt
 - [ ] SignalR hub: push the speaker list and live Telemetry to the browser
 

@@ -1,7 +1,6 @@
 using System.Net;
 using System.Net.Sockets;
 using StageLink.Protocol;
-using StageLink.Simulator;
 using StageLink.Web.Speakers;
 
 namespace StageLink.Web.Tests.Speakers;
@@ -12,22 +11,17 @@ public class SpeakerConnectionTests : IDisposable
 
     // Safety net so a broken test fails instead of hanging.
     private readonly CancellationTokenSource _timeout = new(TimeSpan.FromSeconds(10));
-    private readonly CancellationTokenSource _stopSimulator = new();
+    private readonly TestSimulator _simulator = new();
 
     public void Dispose()
     {
-        _stopSimulator.Cancel();
-        _stopSimulator.Dispose();
+        _simulator.Dispose();
         _timeout.Dispose();
     }
 
-    // Starts the real Phase 2 simulator on a free port.
     private int StartSimulator()
     {
-        var server = new SpeakerServer(new Speaker(new SpeakerState("Main L")), IPAddress.Loopback, 0);
-        server.Start();
-        _ = server.RunAsync(_stopSimulator.Token);
-        return server.Port;
+        return _simulator.Port;
     }
 
     private Task<SpeakerConnection> ConnectAsync(int port, TimeSpan? replyTimeout = null)
