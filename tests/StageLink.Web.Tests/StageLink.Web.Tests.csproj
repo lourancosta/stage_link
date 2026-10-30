@@ -22,6 +22,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\StageLink.Web\StageLink.Web.csproj" />
+    <ProjectReference Include="..\..\src\StageLink.Simulator\StageLink.Simulator.csproj" />
   </ItemGroup>
 
 </Project>
