@@ -51,6 +51,15 @@ public class SpeakerRegistry
         }
     }
 
+    // A speaker heard recently, or null if it's unknown or has gone silent.
+    public DiscoveredSpeaker? Find(string id)
+    {
+        lock (_lock)
+        {
+            return _speakers.TryGetValue(id, out DiscoveredSpeaker? speaker) && !IsExpired(speaker) ? speaker : null;
+        }
+    }
+
     private bool IsExpired(DiscoveredSpeaker speaker)
     {
         return _time.GetUtcNow() - speaker.LastSeen > _timeout;

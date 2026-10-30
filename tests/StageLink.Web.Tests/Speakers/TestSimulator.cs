@@ -22,9 +22,19 @@ public sealed class TestSimulator : IDisposable
 
     public int Port { get; }
 
+    // Safe to call more than once (a .NET rule for Dispose): a test may stop the
+    // simulator itself, and the test class cleanup stops it again.
     public void Dispose()
     {
+        if (_disposed)
+        {
+            return;
+        }
+
+        _disposed = true;
         _stop.Cancel();
         _stop.Dispose();
     }
+
+    private bool _disposed;
 }

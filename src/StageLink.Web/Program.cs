@@ -1,4 +1,6 @@
+using StageLink.Web.Api;
 using StageLink.Web.Discovery;
+using StageLink.Web.Speakers;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -8,12 +10,21 @@ builder.Services.AddSingleton(TimeProvider.System);
 builder.Services.AddSingleton<SpeakerRegistry>();
 builder.Services.AddHostedService<DiscoveryService>();
 
+// Speakers: one shared TCP connection per speaker.
+builder.Services.Configure<SpeakerOptions>(builder.Configuration.GetSection("Speakers"));
+builder.Services.AddSingleton<SpeakerManager>();
+
+// Errors: speaker exceptions become HTTP status codes with a ProblemDetails body.
+builder.Services.AddProblemDetails();
+builder.Services.AddExceptionHandler<SpeakerExceptionHandler>();
+
 var app = builder.Build();
+
+app.UseExceptionHandler();
 
 // A simple "is the backend up?" check, used by the frontend and by tests.
 app.MapGet("/api/health", () => Results.Ok(new { Status = "ok" }));
 
-// Speakers currently announcing themselves on the network.
-app.MapGet("/api/speakers", (SpeakerRegistry registry) => registry.GetAll());
+app.MapSpeakerEndpoints();
 
 app.Run();

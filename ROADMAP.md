@@ -44,7 +44,17 @@ Browsers can't open raw TCP connections or listen for UDP, so the backend is the
 - [x] Discovery: background service that listens for Announce on UDP and keeps a list of speakers by id (removed after 6 s of silence); `GET /api/speakers`
 - [x] `SpeakerConnection`: TCP client to one speaker; matches each reply to its request by message number, with timeouts; receives Telemetry
 - [x] `SpeakerClient`: typed commands (GetState, SetGain, SetMute, SetTilt, Subscribe); a Nack becomes a clear error
-- [ ] HTTP API: list speakers, read state, change gain / mute / tilt
+- [x] HTTP API: list speakers, read state, change gain / mute / tilt
+
+  | Request | Body | Success |
+  |---------|------|---------|
+  | `GET /api/speakers` | | `200` list of discovered speakers |
+  | `GET /api/speakers/{id}/status` | | `200` `{ name, gain, muted, tilt }` |
+  | `PUT /api/speakers/{id}/gain` | `{ "gain": -6.5 }` | `204` |
+  | `PUT /api/speakers/{id}/mute` | `{ "muted": true }` | `204` |
+  | `PUT /api/speakers/{id}/tilt` | `{ "tilt": 7.5 }` | `204` |
+
+  Errors return ProblemDetails JSON: `404` unknown speaker, `422` value out of range, `400` other rejected command, `503` speaker unreachable or not answering, `502` invalid reply.
 - [ ] SignalR hub: push the speaker list and live Telemetry to the browser
 
 **Frontend (Angular, TypeScript)**

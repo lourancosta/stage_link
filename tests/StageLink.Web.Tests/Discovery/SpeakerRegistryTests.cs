@@ -98,4 +98,22 @@ public class SpeakerRegistryTests
 
         Assert.Equal(["Main L", "Main R", "Sub"], _registry.GetAll().Select(s => s.Name));
     }
+
+    [Fact]
+    public void Find_ReturnsSpeakerById()
+    {
+        _registry.Update(Speaker("SL-1", name: "Main L"));
+
+        Assert.Equal("Main L", _registry.Find("SL-1")?.Name);
+    }
+
+    [Fact]
+    public void Find_ReturnsNullForUnknownOrExpiredSpeaker()
+    {
+        _registry.Update(Speaker("SL-1"));
+        _time.Advance(TimeSpan.FromSeconds(7));
+
+        Assert.Null(_registry.Find("SL-1"));
+        Assert.Null(_registry.Find("SL-404"));
+    }
 }
