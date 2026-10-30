@@ -1,0 +1,16 @@
+<header class="topbar">
+  <h1>StageLink</h1>
+
+  <span class="status" [class]="'status ' + backend.status()" data-testid="backend-status">
+    <span class="dot"></span>
+    @switch (backend.status()) {
+      @case ('online') { Backend online }
+      @case ('offline') { Backend offline }
+      @default { Checking backend… }
+    }
+  </span>
+</header>
+
+<main class="content">
+  <router-outlet />
+</main>
