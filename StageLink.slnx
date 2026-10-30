@@ -3,9 +3,11 @@
     <Project Path="src/StageLink.Protocol/StageLink.Protocol.csproj" />
     <Project Path="src/StageLink.Simulator.Host/StageLink.Simulator.Host.csproj" />
     <Project Path="src/StageLink.Simulator/StageLink.Simulator.csproj" />
+    <Project Path="src/StageLink.Web/StageLink.Web.csproj" />
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/StageLink.Protocol.Tests/StageLink.Protocol.Tests.csproj" />
     <Project Path="tests/StageLink.Simulator.Tests/StageLink.Simulator.Tests.csproj" />
+    <Project Path="tests/StageLink.Web.Tests/StageLink.Web.Tests.csproj" />
   </Folder>
 </Solution>
