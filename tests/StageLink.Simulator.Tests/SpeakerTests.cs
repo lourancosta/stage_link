@@ -297,4 +297,26 @@ public class SpeakerTests
             ],
             telemetry.Payload);
     }
+
+    // Announce
+
+    [Fact]
+    public void BuildAnnounce_ContainsIdentityNameAndPort()
+    {
+        var speaker = new Speaker(_state, new SpeakerIdentity("SL-1", "Sim", "1.0"));
+
+        Frame announce = speaker.BuildAnnounce(5, 51000);
+
+        Assert.Equal(Command.Announce, announce.Command);
+        Assert.Equal(5, announce.MessageNumber);
+        Assert.Equal(
+            [
+                0x04, 0x53, 0x4C, 0x2D, 0x31,             // id: "SL-1"
+                0x06, 0x4D, 0x61, 0x69, 0x6E, 0x20, 0x4C, // name: "Main L"
+                0x03, 0x53, 0x69, 0x6D,                   // model: "Sim"
+                0x03, 0x31, 0x2E, 0x30,                   // firmware: "1.0"
+                0xC7, 0x38,                               // TCP port: 51000
+            ],
+            announce.Payload);
+    }
 }

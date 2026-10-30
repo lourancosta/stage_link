@@ -19,8 +19,10 @@ catch (ArgumentException ex)
     return 1;
 }
 
+var identity = new SpeakerIdentity($"SL-{port}", "StageLink Sim", "1.0.0");
+var speaker = new Speaker(state, identity);
 var simulator = new MeasurementSimulator(state);
-var server = new SpeakerServer(new Speaker(state), IPAddress.Any, port, Console.Out, simulator);
+var server = new SpeakerServer(speaker, IPAddress.Any, port, Console.Out, simulator);
 
 // Ctrl+C stops the server cleanly instead of killing the process.
 using var shutdown = new CancellationTokenSource();
@@ -41,8 +43,17 @@ catch (SocketException ex) when (ex.SocketErrorCode == SocketError.AddressAlread
     return 1;
 }
 
-Console.WriteLine($"Speaker \"{name}\" listening on port {server.Port}. Press Ctrl+C to stop.");
+var announcer = new Announcer(
+    speaker,
+    server.Port,
+    Announcer.LocalNetworkDestinations(Announcer.DiscoveryPort),
+    Announcer.DefaultInterval,
+    Console.Out);
 
+Console.WriteLine($"Speaker \"{name}\" ({identity.Id}) listening on TCP port {server.Port}, announcing on UDP port {Announcer.DiscoveryPort}. Press Ctrl+C to stop.");
+
+Task announcing = announcer.RunAsync(shutdown.Token);
 await server.RunAsync(shutdown.Token);
+await announcing;
 Console.WriteLine("Stopped.");
 return 0;

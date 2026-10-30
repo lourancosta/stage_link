@@ -23,7 +23,7 @@
 - [x] TCP server: `SpeakerServer` + `StageLink.Simulator.Host` console app
 - [x] Subscribe / Unsubscribe / Telemetry: rules, `Session`, `Faults`, building the Telemetry frame
 - [x] Telemetry timer in the server + changing readings (`MeasurementSimulator`)
-- [ ] Announce over UDP (so the app can discover speakers)
+- [x] Announce over UDP (so the app can discover speakers)
 
 ## Phase 3: Desktop app (Electron + React + TypeScript)
 - [ ] Connect to the simulator
@@ -79,6 +79,9 @@ Every reply copies the request's message number.
 | Nack  | 1 byte error code |
 | State | name (1 byte length + ASCII characters), gain (2), mute (1), tilt (2) |
 | Telemetry | temperature (2), level (2), limiter (1), gain (2), mute (1), tilt (2), faults (1) |
+| Announce | id, name, model, firmware (each 1 byte length + ASCII), TCP port (2) |
+
+**Announce** is broadcast over UDP to port `51001` every 2 seconds, one frame per datagram. Its message number counts up with each announcement, so the app can notice missed ones. The simulator's id is `SL-<tcp port>`, unique per instance on one machine. It sends to `127.0.0.1` and to each local network's broadcast address (macOS refuses `255.255.255.255`), so an app on the same machine hears each announcement twice and must recognize speakers by id.
 
 **Subscribe** carries the interval in milliseconds (2 bytes, unsigned, `100` to `10000`). The speaker replies Ack, then sends Telemetry at that interval until Unsubscribe or disconnect. Telemetry frames reuse the message number of the Subscribe request. A subscription belongs to one connection.
 

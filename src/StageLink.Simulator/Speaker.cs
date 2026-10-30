@@ -10,10 +10,12 @@ public class Speaker
     public const int MaxTelemetryIntervalMs = 10000;
 
     private readonly SpeakerState _state;
+    private readonly SpeakerIdentity _identity;
 
-    public Speaker(SpeakerState state)
+    public Speaker(SpeakerState state, SpeakerIdentity? identity = null)
     {
         _state = state;
+        _identity = identity ?? SpeakerIdentity.Default;
     }
 
     public Frame Handle(Frame request, Session session)
@@ -29,6 +31,19 @@ public class Speaker
             Command.Unsubscribe => HandleUnsubscribe(request, session),
             _ => Nack(request, NackCode.UnsupportedCommand),
         };
+    }
+
+    // Announce data: id, name, model, firmware (each length + ASCII), TCP port (2)
+    public Frame BuildAnnounce(ushort messageNumber, ushort tcpPort)
+    {
+        var writer = new ByteWriter();
+        writer.WriteString(_identity.Id);
+        writer.WriteString(_state.Name);
+        writer.WriteString(_identity.Model);
+        writer.WriteString(_identity.Firmware);
+        writer.WriteUInt16(tcpPort);
+
+        return new Frame(Command.Announce, messageNumber, writer.ToArray());
     }
 
     // Telemetry data: temperature (2), level (2), limiter (1), gain (2), mute (1), tilt (2), faults (1)
