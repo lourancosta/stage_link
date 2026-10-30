@@ -116,4 +116,103 @@ public class SpeakerServerTests : IDisposable
         Assert.NotNull(reply);
         Assert.Equal(9, reply.MessageNumber);
     }
+
+    // Telemetry
+
+    private static byte[] Interval(ushort milliseconds)
+    {
+        var writer = new ByteWriter();
+        writer.WriteUInt16(milliseconds);
+        return writer.ToArray();
+    }
+
+    [Fact]
+    public async Task Subscribe_SendsTelemetryRepeatedly()
+    {
+        using TcpClient client = await ConnectAsync();
+        NetworkStream stream = client.GetStream();
+        var reader = new FrameReader(stream);
+
+        await stream.WriteAsync(new Frame(Command.Subscribe, 77, Interval(100)).Encode(), _timeout.Token);
+
+        Frame? ack = await reader.ReadFrameAsync(_timeout.Token);
+        Frame? first = await reader.ReadFrameAsync(_timeout.Token);
+        Frame? second = await reader.ReadFrameAsync(_timeout.Token);
+
+        Assert.Equal(Command.Ack, ack?.Command);
+        Assert.NotNull(first);
+        Assert.NotNull(second);
+        Assert.Equal(Command.Telemetry, first.Command);
+        Assert.Equal(Command.Telemetry, second.Command);
+        Assert.Equal(77, first.MessageNumber); // reuses the Subscribe message number
+    }
+
+    [Fact]
+    public async Task Unsubscribe_StopsTelemetry()
+    {
+        using TcpClient client = await ConnectAsync();
+        NetworkStream stream = client.GetStream();
+        var reader = new FrameReader(stream);
+
+        await stream.WriteAsync(new Frame(Command.Subscribe, 1, Interval(100)).Encode(), _timeout.Token);
+        await reader.ReadFrameAsync(_timeout.Token); // Ack
+        await reader.ReadFrameAsync(_timeout.Token); // first Telemetry
+
+        await stream.WriteAsync(new Frame(Command.Unsubscribe, 2, []).Encode(), _timeout.Token);
+
+        // Telemetry already on its way may arrive before the Ack; skip it.
+        Frame? frame;
+        do
+        {
+            frame = await reader.ReadFrameAsync(_timeout.Token);
+        }
+        while (frame is not null && frame.Command == Command.Telemetry);
+
+        Assert.Equal(Command.Ack, frame?.Command);
+        Assert.Equal(2, frame?.MessageNumber ?? 0);
+
+        // After the Ack, nothing more should arrive (4 intervals of silence).
+        using var quiet = new CancellationTokenSource(TimeSpan.FromMilliseconds(400));
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(() => reader.ReadFrameAsync(quiet.Token));
+    }
+
+    [Fact]
+    public async Task RepliesAndTelemetry_NeverCorruptEachOther()
+    {
+        using TcpClient client = await ConnectAsync();
+        NetworkStream stream = client.GetStream();
+        var reader = new FrameReader(stream);
+        const int pingCount = 30;
+
+        await stream.WriteAsync(new Frame(Command.Subscribe, 1000, Interval(100)).Encode(), _timeout.Token);
+
+        // Pings spread over ~600 ms, so Telemetry is sent in between them.
+        for (ushort i = 1; i <= pingCount; i++)
+        {
+            await stream.WriteAsync(new Frame(Command.Ping, i, []).Encode(), _timeout.Token);
+            await Task.Delay(20, _timeout.Token);
+        }
+
+        // Every frame must decode (a corrupted one would throw), and every Pong
+        // must arrive, in order.
+        var pongs = new List<ushort>();
+        int telemetryCount = 0;
+        while (pongs.Count < pingCount)
+        {
+            Frame? frame = await reader.ReadFrameAsync(_timeout.Token);
+            Assert.NotNull(frame);
+
+            if (frame.Command == Command.Pong)
+            {
+                pongs.Add(frame.MessageNumber);
+            }
+            else if (frame.Command == Command.Telemetry)
+            {
+                telemetryCount++;
+            }
+        }
+
+        Assert.Equal(Enumerable.Range(1, pingCount).Select(n => (ushort)n), pongs);
+        Assert.True(telemetryCount > 0, "expected Telemetry frames between the Pongs");
+    }
 }

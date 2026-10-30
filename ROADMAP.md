@@ -22,7 +22,7 @@
 - [x] `FrameReader`: read complete frames from a byte stream (resync on start marker, split/merged packets)
 - [x] TCP server: `SpeakerServer` + `StageLink.Simulator.Host` console app
 - [x] Subscribe / Unsubscribe / Telemetry: rules, `Session`, `Faults`, building the Telemetry frame
-- [ ] Telemetry timer in the server + changing readings (temperature, level)
+- [x] Telemetry timer in the server + changing readings (`MeasurementSimulator`)
 - [ ] Announce over UDP (so the app can discover speakers)
 
 ## Phase 3: Desktop app (Electron + React + TypeScript)
@@ -89,6 +89,8 @@ Every reply copies the request's message number.
 | 0   | `0x01` | Overtemperature |
 | 1   | `0x02` | Amplifier fault |
 | 2   | `0x04` | Power supply fault |
+
+**Simulated readings** (`MeasurementSimulator`, updated every 100 ms): level = gain − 10 dB ± 1.5 dB of random variation (−60 dB when muted). If the level would go above −1 dB, the limiter switches on and holds it there. Temperature moves gradually toward 25 °C + 0.8 °C per dB above −60 dB (30 s time constant). Overtemperature turns on above 70 °C and off below 65 °C.
 
 | Nack code | Meaning |
 |-----------|---------|

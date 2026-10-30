@@ -19,7 +19,8 @@ catch (ArgumentException ex)
     return 1;
 }
 
-var server = new SpeakerServer(new Speaker(state), IPAddress.Any, port, Console.Out);
+var simulator = new MeasurementSimulator(state);
+var server = new SpeakerServer(new Speaker(state), IPAddress.Any, port, Console.Out, simulator);
 
 // Ctrl+C stops the server cleanly instead of killing the process.
 using var shutdown = new CancellationTokenSource();
