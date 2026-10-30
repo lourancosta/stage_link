@@ -8,4 +8,7 @@ public class SpeakerOptions
 
     // How long to wait for the reply to each command.
     public TimeSpan ReplyTimeout { get; set; } = TimeSpan.FromSeconds(2);
+
+    // How often a watched speaker sends Telemetry (5 times a second).
+    public TimeSpan TelemetryInterval { get; set; } = TimeSpan.FromMilliseconds(200);
 }

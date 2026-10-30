@@ -55,7 +55,13 @@ Browsers can't open raw TCP connections or listen for UDP, so the backend is the
   | `PUT /api/speakers/{id}/tilt` | `{ "tilt": 7.5 }` | `204` |
 
   Errors return ProblemDetails JSON: `404` unknown speaker, `422` value out of range, `400` other rejected command, `503` speaker unreachable or not answering, `502` invalid reply.
-- [ ] SignalR hub: push the speaker list and live Telemetry to the browser
+- [x] SignalR hub (`/hubs/speakers`): push the speaker list and live Telemetry to the browser
+
+  | Direction | Message | When |
+  |-----------|---------|------|
+  | server → browser | `SpeakersChanged(speakers)` | on connect, then whenever the list changes |
+  | browser → server | `WatchSpeaker(id)` / `UnwatchSpeaker(id)` | a speaker's page opens / closes |
+  | server → browser | `Telemetry(id, reading)` | every 200 ms, only to browsers watching that speaker |
 
 **Frontend (Angular, TypeScript)**
 - [ ] Project setup (`web/`), dev proxy to the backend
