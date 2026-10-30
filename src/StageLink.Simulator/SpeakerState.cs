@@ -1,4 +1,5 @@
 using System.Text;
+using StageLink.Protocol;
 
 namespace StageLink.Simulator;
 
@@ -13,6 +14,12 @@ public class SpeakerState
     public double Gain { get; private set; }
     public bool Muted { get; private set; }
     public double Tilt { get; private set; }
+
+    // Measurements: read-only for apps, updated by the simulation.
+    public double Temperature { get; private set; } = 25.0;
+    public double Level { get; private set; } = -60.0;
+    public bool LimiterActive { get; private set; }
+    public Faults Faults { get; private set; } = Faults.None;
 
     // The name is sent in the State reply as 1 length byte + ASCII characters,
     // so it must fit those rules.
@@ -54,5 +61,13 @@ public class SpeakerState
         }
 
         Tilt = tilt;
+    }
+
+    public void UpdateMeasurements(double temperature, double level, bool limiterActive, Faults faults)
+    {
+        Temperature = temperature;
+        Level = level;
+        LimiterActive = limiterActive;
+        Faults = faults;
     }
 }

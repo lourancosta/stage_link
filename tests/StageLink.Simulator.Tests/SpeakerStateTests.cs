@@ -1,3 +1,4 @@
+using StageLink.Protocol;
 using StageLink.Simulator;
 
 namespace StageLink.Simulator.Tests;
@@ -101,5 +102,29 @@ public class SpeakerStateTests
     public void Constructor_ThrowsOnNonAsciiName()
     {
         Assert.Throws<ArgumentException>(() => new SpeakerState("Café"));
+    }
+
+    [Fact]
+    public void NewSpeaker_StartsWithIdleMeasurements()
+    {
+        var state = new SpeakerState("Main L");
+
+        Assert.Equal(25.0, state.Temperature);
+        Assert.Equal(-60.0, state.Level);
+        Assert.False(state.LimiterActive);
+        Assert.Equal(Faults.None, state.Faults);
+    }
+
+    [Fact]
+    public void UpdateMeasurements_StoresNewValues()
+    {
+        var state = new SpeakerState("Main L");
+
+        state.UpdateMeasurements(41.5, -12.25, true, Faults.Overtemperature);
+
+        Assert.Equal(41.5, state.Temperature);
+        Assert.Equal(-12.25, state.Level);
+        Assert.True(state.LimiterActive);
+        Assert.Equal(Faults.Overtemperature, state.Faults);
     }
 }

@@ -21,7 +21,8 @@
 - [x] GetState → State (adds `WriteString` / `ReadString` to the protocol)
 - [x] `FrameReader`: read complete frames from a byte stream (resync on start marker, split/merged packets)
 - [x] TCP server: `SpeakerServer` + `StageLink.Simulator.Host` console app
-- [ ] Subscribe / Unsubscribe / Telemetry (timed updates)
+- [x] Subscribe / Unsubscribe / Telemetry: rules, `Session`, `Faults`, building the Telemetry frame
+- [ ] Telemetry timer in the server + changing readings (temperature, level)
 - [ ] Announce over UDP (so the app can discover speakers)
 
 ## Phase 3: Desktop app (Electron + React + TypeScript)
@@ -77,6 +78,17 @@ Every reply copies the request's message number.
 | Ack   | none |
 | Nack  | 1 byte error code |
 | State | name (1 byte length + ASCII characters), gain (2), mute (1), tilt (2) |
+| Telemetry | temperature (2), level (2), limiter (1), gain (2), mute (1), tilt (2), faults (1) |
+
+**Subscribe** carries the interval in milliseconds (2 bytes, unsigned, `100` to `10000`). The speaker replies Ack, then sends Telemetry at that interval until Unsubscribe or disconnect. Telemetry frames reuse the message number of the Subscribe request. A subscription belongs to one connection.
+
+**Telemetry values:** temperature in °C and output level in dB are fixed-point like gain. Limiter is `1` while the limiter is active. Faults is a bit field:
+
+| Bit | Value  | Fault |
+|-----|--------|-------|
+| 0   | `0x01` | Overtemperature |
+| 1   | `0x02` | Amplifier fault |
+| 2   | `0x04` | Power supply fault |
 
 | Nack code | Meaning |
 |-----------|---------|

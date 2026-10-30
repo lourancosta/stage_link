@@ -64,6 +64,7 @@ public class SpeakerServer
 
             NetworkStream stream = client.GetStream();
             var reader = new FrameReader(stream);
+            var session = new Session();
 
             try
             {
@@ -90,7 +91,7 @@ public class SpeakerServer
                     Frame reply;
                     lock (_speakerLock)
                     {
-                        reply = _speaker.Handle(request);
+                        reply = _speaker.Handle(request, session);
                     }
 
                     _log.WriteLine($"{request.Command} #{request.MessageNumber} -> {reply.Command}");
