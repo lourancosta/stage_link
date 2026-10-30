@@ -25,9 +25,37 @@
 - [x] Telemetry timer in the server + changing readings (`MeasurementSimulator`)
 - [x] Announce over UDP (so the app can discover speakers)
 
-## Phase 3: Desktop app (Electron + React + TypeScript)
-- [ ] Connect to the simulator
-- [ ] Control gain and other parameters from the UI
+## Phase 3: Web app (ASP.NET Core + Angular)
+
+```
+Angular app (browser)
+   │  HTTP for commands, SignalR for live updates
+   ▼
+ASP.NET Core backend (StageLink.Web)  ── uses StageLink.Protocol
+   │  UDP to discover speakers, TCP to control them
+   ▼
+Speaker simulator (Phase 2)
+```
+
+Browsers can't open raw TCP connections or listen for UDP, so the backend is the bridge between the browser and the speakers.
+
+**Backend (C#, xUnit)**
+- [ ] Project setup: `StageLink.Web` (ASP.NET Core) + `StageLink.Web.Tests`
+- [ ] Discovery: background service that listens for Announce on UDP and keeps a list of speakers by id (removed after a few seconds of silence)
+- [ ] `SpeakerConnection`: TCP client to one speaker; matches each reply to its request by message number, with timeouts; receives Telemetry
+- [ ] `SpeakerClient`: typed commands (GetState, SetGain, SetMute, SetTilt, Subscribe); a Nack becomes a clear error
+- [ ] HTTP API: list speakers, read state, change gain / mute / tilt
+- [ ] SignalR hub: push the speaker list and live Telemetry to the browser
+
+**Frontend (Angular, TypeScript)**
+- [ ] Project setup (`web/`), dev proxy to the backend
+- [ ] Speaker list (live, from discovery)
+- [ ] Control panel: gain and tilt sliders, mute toggle, error messages for Nack
+- [ ] Live telemetry: temperature, level meter, limiter, faults
+
+**Finish**
+- [ ] README: what the project is, architecture diagram, how to run it, screenshots
+- [ ] One command to start everything
 
 ## Protocol format
 
