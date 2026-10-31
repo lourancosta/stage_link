@@ -1,17 +1,19 @@
 @if (loadError(); as message) {
   <p class="error" data-testid="load-error">{{ message }}</p>
 } @else if (status(); as s) {
-  <section class="card" aria-labelledby="controls-title">
-    <h3 id="controls-title">Controls</h3>
+  <section class="card" aria-label="Controls">
+    @if (variant() === 'full') {
+      <h3>Controls</h3>
+    }
 
     <div class="items">
       <div class="item">
         <div class="item-header">
-          <label for="gain">Gain</label>
-          <output for="gain" data-testid="gain-value">{{ formatGain(s.gain) }}</output>
+          <label [attr.for]="elementId('gain')">Gain</label>
+          <output [attr.for]="elementId('gain')" data-testid="gain-value">{{ formatGain(s.gain) }}</output>
         </div>
         <input
-          id="gain"
+          [id]="elementId('gain')"
           type="range"
           [min]="limits.gain.min"
           [max]="limits.gain.max"
@@ -27,11 +29,11 @@
 
       <div class="item">
         <div class="item-header">
-          <label for="tilt">Tilt</label>
-          <output for="tilt" data-testid="tilt-value">{{ formatTilt(s.tilt) }}</output>
+          <label [attr.for]="elementId('tilt')">Tilt</label>
+          <output [attr.for]="elementId('tilt')" data-testid="tilt-value">{{ formatTilt(s.tilt) }}</output>
         </div>
         <input
-          id="tilt"
+          [id]="elementId('tilt')"
           type="range"
           [min]="limits.tilt.min"
           [max]="limits.tilt.max"
@@ -47,7 +49,7 @@
 
       <div class="item compact">
         <div class="item-header">
-          <span class="label" id="mute-label">Mute</span>
+          <span class="label" [id]="elementId('mute-label')">Mute</span>
         </div>
         <!-- A smartphone-style switch. role="switch" + aria-checked tell screen
              readers it's an on/off control, not a normal button. -->
@@ -55,7 +57,7 @@
           type="button"
           class="switch"
           role="switch"
-          aria-labelledby="mute-label"
+          [attr.aria-labelledby]="elementId('mute-label')"
           [class.on]="s.muted"
           [attr.aria-checked]="s.muted"
           (click)="toggleMute()"

@@ -81,6 +81,32 @@ describe('ControlPanel', () => {
     expect(text(page, 'mute-button')).toBe('Muted');
   });
 
+  it('uses ids unique to the speaker, so several panels can share a page', async () => {
+    const page = await render();
+
+    const slider = page.querySelector('[data-testid="gain-slider"]') as HTMLInputElement;
+    expect(slider.id).toBe('gain-SL-1');
+    expect(page.querySelector(`label[for="${slider.id}"]`)?.textContent).toContain('Gain');
+  });
+
+  it('shows the "Controls" title in the full layout', async () => {
+    const page = await render();
+
+    expect(page.querySelector('h3')?.textContent).toContain('Controls');
+  });
+
+  it('drops the title and frame in the compact layout', async () => {
+    fixture = TestBed.createComponent(ControlPanel);
+    fixture.componentRef.setInput('speakerId', 'SL-1');
+    fixture.componentRef.setInput('variant', 'compact');
+    await fixture.whenStable();
+    const page = fixture.nativeElement as HTMLElement;
+
+    expect(page.querySelector('h3')).toBeNull();
+    expect(page.classList).toContain('compact');
+    expect(page.querySelector('[data-testid="gain-slider"]')).not.toBeNull();
+  });
+
   it('presents mute as an on/off switch for screen readers', async () => {
     const page = await render();
     const toggle = page.querySelector('[data-testid="mute-button"]') as HTMLButtonElement;

@@ -135,3 +135,51 @@ dd {
   color: var(--danger);
   font-size: 0.9rem;
 }
+
+// Compact: inside a speaker card on the list. No frame or title; temperature
+// and limiter share a row, then the level meter and faults get full rows.
+:host(.compact) {
+  .card {
+    padding: 0;
+    background: none;
+    border: none;
+  }
+
+  .items {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem 1rem;
+  }
+
+  .item {
+    gap: 0.3rem;
+  }
+
+  .temperature {
+    order: 1;
+  }
+
+  .limiter {
+    order: 2;
+  }
+
+  .level {
+    order: 3;
+    grid-column: 1 / -1;
+  }
+
+  .faults {
+    order: 4;
+    grid-column: 1 / -1;
+  }
+
+  dt {
+    font-size: 0.75rem;
+  }
+
+  dd,
+  .value {
+    min-height: 0;
+    font-size: 0.85rem;
+  }
+}

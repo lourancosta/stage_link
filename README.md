@@ -2,23 +2,26 @@
 
 Remote control and live monitoring for networked loudspeakers: a custom binary protocol, a speaker simulator, an ASP.NET Core backend and an Angular web app, built test-first.
 
-![Speaker page: gain, tilt and mute controls above live telemetry](docs/images/speaker-page.png)
+![Speaker list: every speaker's controls and live telemetry on one screen](docs/images/speaker-list.png)
 
 ## What it does
 
 - **Finds speakers automatically.** Each speaker announces itself on the local network over UDP, and the app lists it within seconds. Nobody types an IP address.
+- **Monitors the whole system at once.** Every speaker's controls and live readings are on the main screen, so nobody has to open speakers one by one during a show.
 - **Controls them.** Gain, tilt and mute, with clear error messages when a speaker refuses a value.
 - **Shows live telemetry.** Temperature, output level, limiter and faults, pushed to the browser 5 times a second.
 - **Stays in sync.** A change made in one browser tab shows up in every other tab watching the same speaker.
 - **Works on any screen.** The layout adapts from a wide desktop to a phone.
 
-![Speaker list with three discovered speakers](docs/images/speaker-list.png)
-
 On a phone, the cards stack into a single column:
 
 <p align="center">
-  <img src="docs/images/speaker-page-mobile.png" alt="Speaker page on a phone: controls and live telemetry stacked in one column, with mute switched on" width="320">
+  <img src="docs/images/speaker-list-mobile.png" alt="Speaker list on a phone: each speaker's card with controls and live telemetry, stacked in one column" width="320">
 </p>
+
+Each speaker also has its own page with a larger view:
+
+![Speaker page: gain, tilt and mute controls above live telemetry](docs/images/speaker-page.png)
 
 ## Architecture
 
@@ -96,14 +99,14 @@ The full specification (every command, reply, error code and simulator rule) is 
 
 ## Tests
 
-**254 automated tests**, written before the code (test-driven development):
+**261 automated tests**, written before the code (test-driven development):
 
 | Project | Tests | Covers |
 |---|---:|---|
 | `StageLink.Protocol.Tests` | 73 | Byte reading and writing, fixed-point, CRC-16, frame encoding and validation, stream framing |
 | `StageLink.Simulator.Tests` | 68 | Speaker behavior, telemetry simulation, TCP server, UDP announcements |
 | `StageLink.Web.Tests` | 56 | Discovery, request/reply matching, the HTTP API end to end, SignalR |
-| Angular (`web/`) | 57 | Services, the live connection, every page and component |
+| Angular (`web/`) | 64 | Services, the live connection, every page and component |
 
 ```bash
 dotnet test                                # .NET

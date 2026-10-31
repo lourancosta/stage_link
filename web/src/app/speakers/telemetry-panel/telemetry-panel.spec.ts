@@ -107,4 +107,24 @@ describe('TelemetryPanel', () => {
 
     expect(text(page, 'telemetry-error')).toContain('could not be reached');
   });
+
+  it('shows the "Live telemetry" title in the full layout', async () => {
+    const page = await render();
+
+    expect(page.querySelector('h3')?.textContent).toContain('Live telemetry');
+  });
+
+  it('drops the title and frame in the compact layout', async () => {
+    fixture = TestBed.createComponent(TelemetryPanel);
+    fixture.componentRef.setInput('speakerId', 'SL-1');
+    fixture.componentRef.setInput('variant', 'compact');
+    await fixture.whenStable();
+    hub.pushTelemetry('SL-1', reading());
+    await fixture.whenStable();
+    const page = fixture.nativeElement as HTMLElement;
+
+    expect(page.querySelector('h3')).toBeNull();
+    expect(page.classList).toContain('compact');
+    expect(text(page, 'temperature')).toBe('41.5 °C');
+  });
 });

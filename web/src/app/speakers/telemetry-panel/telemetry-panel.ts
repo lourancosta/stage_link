@@ -16,11 +16,15 @@ const FAULT_LABELS: Record<string, string> = {
   selector: 'app-telemetry-panel',
   templateUrl: './telemetry-panel.html',
   styleUrl: './telemetry-panel.scss',
+  host: { '[class.compact]': "variant() === 'compact'" },
 })
 export class TelemetryPanel {
   private readonly hub = inject(SpeakerHub);
 
   readonly speakerId = input.required<string>();
+
+  // 'full' on the speaker page; 'compact' inside the cards on the speaker list.
+  readonly variant = input<'full' | 'compact'>('full');
 
   protected readonly error = signal<string | null>(null);
   protected readonly reading = computed(() => this.hub.telemetryFor(this.speakerId()));

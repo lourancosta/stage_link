@@ -1,7 +1,9 @@
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
+import { SpeakerApi } from '../../core/speaker-api';
 import { SpeakerHub } from '../../core/speaker-hub';
 import { DiscoveredSpeaker } from '../../core/speaker.models';
+import { FakeSpeakerApi } from '../../testing/fake-speaker-api';
 import { FakeSpeakerHub } from '../../testing/fake-speaker-hub';
 import { SpeakerList } from './speaker-list';
 
@@ -16,7 +18,11 @@ describe('SpeakerList', () => {
     hub = new FakeSpeakerHub();
     await TestBed.configureTestingModule({
       imports: [SpeakerList],
-      providers: [provideRouter([]), { provide: SpeakerHub, useValue: hub }],
+      providers: [
+        provideRouter([]),
+        { provide: SpeakerHub, useValue: hub },
+        { provide: SpeakerApi, useValue: new FakeSpeakerApi() },
+      ],
     }).compileComponents();
   });
 
@@ -38,13 +44,28 @@ describe('SpeakerList', () => {
     expect(cards[1].textContent).toContain('127.0.0.1:51010');
   });
 
-  it('links each card to the speaker page', async () => {
+  it("links each speaker's name to its details page", async () => {
     hub.speakers.set([speaker('SL-51000', 'Main L')]);
 
     const page = await render();
-    const link = page.querySelector('[data-testid="speaker-card"]') as HTMLAnchorElement;
+    const link = page.querySelector('[data-testid="speaker-card"] a') as HTMLAnchorElement;
 
+    expect(link.textContent).toContain('Main L');
     expect(link.getAttribute('href')).toBe('/speakers/SL-51000');
+  });
+
+  it('shows compact controls and live telemetry in every card', async () => {
+    hub.speakers.set([speaker('SL-51000', 'Main L'), speaker('SL-51010', 'Main R', 51010)]);
+
+    const page = await render();
+    const cards = page.querySelectorAll('[data-testid="speaker-card"]');
+
+    cards.forEach((card) => {
+      expect(card.querySelector('app-control-panel.compact')).not.toBeNull();
+      expect(card.querySelector('app-telemetry-panel.compact')).not.toBeNull();
+    });
+    expect(hub.watch).toHaveBeenCalledWith('SL-51000');
+    expect(hub.watch).toHaveBeenCalledWith('SL-51010');
   });
 
   it('explains how to start a simulator when no speakers are found', async () => {

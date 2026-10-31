@@ -1,12 +1,14 @@
-<section class="card" aria-labelledby="telemetry-title">
-  <h3 id="telemetry-title">Live telemetry</h3>
+<section class="card" aria-label="Live telemetry">
+  @if (variant() === 'full') {
+    <h3>Live telemetry</h3>
+  }
 
   @if (error(); as message) {
     <p class="error" data-testid="telemetry-error">Live data unavailable: {{ message }}</p>
   } @else if (reading(); as r) {
     <!-- Same pattern as the controls: name on top, value below, side by side. -->
     <dl class="items">
-      <div class="item">
+      <div class="item temperature">
         <dt>Temperature</dt>
         <dd data-testid="temperature" [class.hot]="hot()" [class.danger]="overheated()">{{ r.temperature.toFixed(1) }} °C</dd>
       </div>
@@ -23,7 +25,7 @@
         </dd>
       </div>
 
-      <div class="item">
+      <div class="item limiter">
         <dt>Limiter</dt>
         <dd>
           <span class="light" [class.on]="r.limiterActive"></span>
@@ -31,7 +33,7 @@
         </dd>
       </div>
 
-      <div class="item">
+      <div class="item faults">
         <dt>Faults</dt>
         <dd data-testid="faults">
           @for (fault of faults(); track fault) {

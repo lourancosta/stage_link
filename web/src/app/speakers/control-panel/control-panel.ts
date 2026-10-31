@@ -12,6 +12,7 @@ type Setting = 'gain' | 'mute' | 'tilt';
   selector: 'app-control-panel',
   templateUrl: './control-panel.html',
   styleUrl: './control-panel.scss',
+  host: { '[class.compact]': "variant() === 'compact'" },
 })
 export class ControlPanel {
   private readonly api = inject(SpeakerApi);
@@ -22,6 +23,9 @@ export class ControlPanel {
   private pendingChanges = 0;
 
   readonly speakerId = input.required<string>();
+
+  // 'full' on the speaker page; 'compact' inside the cards on the speaker list.
+  readonly variant = input<'full' | 'compact'>('full');
 
   protected readonly limits = SPEAKER_LIMITS;
   protected readonly status = signal<SpeakerStatus | null>(null);
@@ -70,6 +74,11 @@ export class ControlPanel {
   protected toggleMute(): void {
     const muted = !this.status()?.muted;
     void this.change('mute', { muted }, () => this.api.setMute(this.speakerId(), muted));
+  }
+
+  // Element ids must be unique on the page, and the list shows many panels.
+  protected elementId(name: string): string {
+    return `${name}-${this.speakerId()}`;
   }
 
   protected formatGain(gain: number): string {

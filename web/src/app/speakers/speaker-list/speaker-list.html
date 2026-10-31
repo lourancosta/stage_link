@@ -14,11 +14,21 @@
 } @else if (hub.speakers().length > 0) {
   <div class="grid">
     @for (speaker of hub.speakers(); track speaker.id) {
-      <a class="card" [routerLink]="['/speakers', speaker.id]" data-testid="speaker-card">
-        <span class="name">{{ speaker.name }}</span>
-        <span class="meta">{{ speaker.model }} · firmware {{ speaker.firmware }}</span>
-        <span class="meta address">{{ speaker.address }}:{{ speaker.tcpPort }}</span>
-      </a>
+      <article class="card" data-testid="speaker-card">
+        <header class="details">
+          <a class="name" [routerLink]="['/speakers', speaker.id]">{{ speaker.name }}</a>
+          <span class="meta">{{ speaker.model }} · firmware {{ speaker.firmware }}</span>
+          <span class="meta address">{{ speaker.address }}:{{ speaker.tcpPort }}</span>
+        </header>
+
+        <div class="section">
+          <app-control-panel [speakerId]="speaker.id" variant="compact" />
+        </div>
+
+        <div class="section">
+          <app-telemetry-panel [speakerId]="speaker.id" variant="compact" />
+        </div>
+      </article>
     }
   </div>
 } @else {
