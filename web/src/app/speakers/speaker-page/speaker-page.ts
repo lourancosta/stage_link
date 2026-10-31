@@ -1,8 +1,8 @@
 import { Component, computed, inject, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { SpeakerHub } from '../core/speaker-hub';
-import { ControlPanel } from './control-panel';
-import { TelemetryPanel } from './telemetry-panel';
+import { SpeakerHub } from '../../core/speaker-hub';
+import { ControlPanel } from '../control-panel/control-panel';
+import { TelemetryPanel } from '../telemetry-panel/telemetry-panel';
 
 // One speaker's page (/speakers/:id): details and controls.
 @Component({

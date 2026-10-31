@@ -1,8 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { SpeakerHub } from '../core/speaker-hub';
-import { TelemetryReading } from '../core/speaker.models';
-import { FakeSpeakerHub } from '../testing/fake-speaker-hub';
-import { TelemetryPanel } from './telemetry-panel';
+import { SpeakerHub } from '../../core/speaker-hub';
+import { TelemetryReading } from '../../core/speaker.models';
+import { FakeSpeakerHub } from '../../testing/fake-speaker-hub';
+import { TelemetryPanel } from '../telemetry-panel/telemetry-panel';
 
 function reading(overrides: Partial<TelemetryReading> = {}): TelemetryReading {
   return { temperature: 41.5, level: -12.25, limiterActive: false, gain: -6.5, muted: false, tilt: 0, faults: 'None', ...overrides };

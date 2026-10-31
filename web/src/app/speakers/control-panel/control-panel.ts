@@ -1,7 +1,7 @@
 import { Component, effect, inject, input, signal, untracked } from '@angular/core';
-import { ApiError, SpeakerApi } from '../core/speaker-api';
-import { SpeakerHub } from '../core/speaker-hub';
-import { SPEAKER_LIMITS, SpeakerStatus } from '../core/speaker.models';
+import { ApiError, SpeakerApi } from '../../core/speaker-api';
+import { SpeakerHub } from '../../core/speaker-hub';
+import { SPEAKER_LIMITS, SpeakerStatus } from '../../core/speaker.models';
 
 type Setting = 'gain' | 'mute' | 'tilt';
 

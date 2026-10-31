@@ -1,5 +1,5 @@
 import { Component, computed, effect, inject, input, signal, untracked } from '@angular/core';
-import { SpeakerHub } from '../core/speaker-hub';
+import { SpeakerHub } from '../../core/speaker-hub';
 
 const SILENCE_DB = -60;
 const HOT_CELSIUS = 60;

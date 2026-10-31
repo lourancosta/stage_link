@@ -1,9 +1,9 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { ApiError, SpeakerApi } from '../core/speaker-api';
-import { SpeakerHub } from '../core/speaker-hub';
-import { FakeSpeakerHub } from '../testing/fake-speaker-hub';
-import { FakeSpeakerApi } from '../testing/fake-speaker-api';
-import { ControlPanel } from './control-panel';
+import { ApiError, SpeakerApi } from '../../core/speaker-api';
+import { SpeakerHub } from '../../core/speaker-hub';
+import { FakeSpeakerHub } from '../../testing/fake-speaker-hub';
+import { FakeSpeakerApi } from '../../testing/fake-speaker-api';
+import { ControlPanel } from '../control-panel/control-panel';
 
 describe('ControlPanel', () => {
   let api: FakeSpeakerApi;

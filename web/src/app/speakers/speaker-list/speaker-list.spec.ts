@@ -1,8 +1,8 @@
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { SpeakerHub } from '../core/speaker-hub';
-import { DiscoveredSpeaker } from '../core/speaker.models';
-import { FakeSpeakerHub } from '../testing/fake-speaker-hub';
+import { SpeakerHub } from '../../core/speaker-hub';
+import { DiscoveredSpeaker } from '../../core/speaker.models';
+import { FakeSpeakerHub } from '../../testing/fake-speaker-hub';
 import { SpeakerList } from './speaker-list';
 
 function speaker(id: string, name: string, tcpPort = 51000): DiscoveredSpeaker {

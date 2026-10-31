@@ -1,9 +1,9 @@
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { SpeakerApi } from '../core/speaker-api';
-import { SpeakerHub } from '../core/speaker-hub';
-import { FakeSpeakerApi } from '../testing/fake-speaker-api';
-import { FakeSpeakerHub } from '../testing/fake-speaker-hub';
+import { SpeakerApi } from '../../core/speaker-api';
+import { SpeakerHub } from '../../core/speaker-hub';
+import { FakeSpeakerApi } from '../../testing/fake-speaker-api';
+import { FakeSpeakerHub } from '../../testing/fake-speaker-hub';
 import { SpeakerPage } from './speaker-page';
 
 describe('SpeakerPage', () => {
