@@ -68,7 +68,7 @@ Browsers can't open raw TCP connections or listen for UDP, so the backend is the
 
   Run it: `dotnet run --project src/StageLink.Web`, then `cd web && npm start` and open http://localhost:4200. The dev server forwards `/api` and `/hubs` to the backend on port 5080. Tests: `cd web && npm test`.
 - [x] Speaker list (live over SignalR, with loading, empty and connection-lost states); speaker page route `/speakers/:id` (lazy-loaded)
-- [ ] Control panel: gain and tilt sliders, mute toggle, error messages for Nack
+- [x] Control panel: gain and tilt sliders, mute toggle, error messages from the backend (optimistic updates that jump back on failure)
 - [ ] Live telemetry: temperature, level meter, limiter, faults
 
 **Finish**

@@ -9,3 +9,16 @@ export interface DiscoveredSpeaker {
   tcpPort: number;
   lastSeen: string;
 }
+
+export interface SpeakerStatus {
+  name: string;
+  gain: number;
+  muted: boolean;
+  tilt: number;
+}
+
+// The speaker's allowed ranges (same as SpeakerState in the simulator).
+export const SPEAKER_LIMITS = {
+  gain: { min: -60, max: 12, step: 0.5 },
+  tilt: { min: -15, max: 15, step: 0.5 },
+} as const;

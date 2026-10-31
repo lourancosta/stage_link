@@ -3,6 +3,8 @@
 @if (speaker(); as speaker) {
   <h2>{{ speaker.name }}</h2>
   <p class="meta">{{ speaker.model }} · firmware {{ speaker.firmware }} · {{ speaker.address }}:{{ speaker.tcpPort }}</p>
+
+  <app-control-panel [speakerId]="speaker.id" />
 } @else if (!hub.loaded()) {
   <p class="meta loading">Loading…</p>
 } @else {
