@@ -72,8 +72,8 @@ Browsers can't open raw TCP connections or listen for UDP, so the backend is the
 - [x] Live telemetry: temperature, level meter, limiter, faults; controls follow changes made elsewhere
 
 **Finish**
-- [ ] README: what the project is, architecture diagram, how to run it, screenshots
-- [ ] One command to start everything
+- [x] README: what the project is, architecture diagram, how to run it, screenshots
+- [x] One command to start everything: `./scripts/start.sh` (3 simulated speakers + backend + web app; Ctrl+C stops all)
 
 ## Protocol format
 
