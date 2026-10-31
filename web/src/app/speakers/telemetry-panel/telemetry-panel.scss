@@ -1,12 +1,12 @@
-.panel {
-  padding: 1.25rem;
+.card {
+  padding: 2rem 1.5rem;
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 8px;
 }
 
 h3 {
-  margin: 0 0 1rem;
+  margin: 0 0 1.25rem;
   font-size: 0.8rem;
   font-weight: 600;
   letter-spacing: 0.08em;
@@ -14,17 +14,52 @@ h3 {
   color: var(--text-muted);
 }
 
-dl {
-  display: grid;
-  grid-template-columns: 6.5rem 1fr;
-  gap: 0.9rem 0.75rem;
+// Same as the controls card: items keep their width, free space shared around them.
+.items {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-around;
+  gap: 1.5rem 2rem;
   margin: 0;
-  align-items: center;
+}
+
+.item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  flex: 0 1 140px;
+  min-width: 0;
+}
+
+// The meter needs more room than a single number.
+.level {
+  flex-basis: 320px;
+}
+
+// Phones: one item per row, full width.
+@media (max-width: 640px) {
+  .item,
+  .level {
+    flex-basis: 100%;
+  }
 }
 
 dt {
   color: var(--text-muted);
   font-size: 0.9rem;
+}
+
+.item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0.5rem;
+}
+
+.value {
+  color: var(--text);
+  font-family: ui-monospace, monospace;
+  font-size: 0.95rem;
 }
 
 dd {
@@ -33,8 +68,9 @@ dd {
   align-items: center;
   gap: 0.5rem;
   flex-wrap: wrap;
+  min-height: 1.5rem;
   font-family: ui-monospace, monospace;
-  font-size: 0.9rem;
+  font-size: 0.95rem;
 }
 
 .hot {
@@ -43,10 +79,6 @@ dd {
 
 .danger {
   color: var(--danger);
-}
-
-.level {
-  flex-wrap: nowrap;
 }
 
 .meter {
@@ -67,11 +99,6 @@ dd {
 
 .bar.limited {
   background: var(--warn);
-}
-
-.value {
-  min-width: 5.5rem;
-  text-align: right;
 }
 
 .light {

@@ -2,7 +2,7 @@
 
 Remote control and live monitoring for networked loudspeakers: a custom binary protocol, a speaker simulator, an ASP.NET Core backend and an Angular web app, built test-first.
 
-![Speaker page: gain, tilt and mute controls next to live telemetry](docs/images/speaker-page.png)
+![Speaker page: gain, tilt and mute controls above live telemetry](docs/images/speaker-page.png)
 
 ## What it does
 
@@ -10,8 +10,15 @@ Remote control and live monitoring for networked loudspeakers: a custom binary p
 - **Controls them.** Gain, tilt and mute, with clear error messages when a speaker refuses a value.
 - **Shows live telemetry.** Temperature, output level, limiter and faults, pushed to the browser 5 times a second.
 - **Stays in sync.** A change made in one browser tab shows up in every other tab watching the same speaker.
+- **Works on any screen.** The layout adapts from a wide desktop to a phone.
 
 ![Speaker list with three discovered speakers](docs/images/speaker-list.png)
+
+On a phone, the cards stack into a single column:
+
+<p align="center">
+  <img src="docs/images/speaker-page-mobile.png" alt="Speaker page on a phone: controls and live telemetry stacked in one column, with mute switched on" width="320">
+</p>
 
 ## Architecture
 

@@ -81,6 +81,19 @@ describe('ControlPanel', () => {
     expect(text(page, 'mute-button')).toBe('Muted');
   });
 
+  it('presents mute as an on/off switch for screen readers', async () => {
+    const page = await render();
+    const toggle = page.querySelector('[data-testid="mute-button"]') as HTMLButtonElement;
+
+    expect(toggle.getAttribute('role')).toBe('switch');
+    expect(toggle.getAttribute('aria-checked')).toBe('false');
+
+    toggle.click();
+    await fixture.whenStable();
+
+    expect(toggle.getAttribute('aria-checked')).toBe('true');
+  });
+
   it('shows the error and jumps back when the speaker rejects a value', async () => {
     api.setGain.mockRejectedValue(new ApiError(422, 'Speaker rejected SetGain: the value is out of range.'));
     const page = await render();
