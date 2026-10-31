@@ -1,0 +1,11 @@
+<a routerLink="/" class="back">← All speakers</a>
+
+@if (speaker(); as speaker) {
+  <h2>{{ speaker.name }}</h2>
+  <p class="meta">{{ speaker.model }} · firmware {{ speaker.firmware }} · {{ speaker.address }}:{{ speaker.tcpPort }}</p>
+} @else if (!hub.loaded()) {
+  <p class="meta loading">Loading…</p>
+} @else {
+  <h2>Speaker not found</h2>
+  <p class="meta">"{{ id() }}" is not announcing itself on the network right now.</p>
+}

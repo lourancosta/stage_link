@@ -3,14 +3,23 @@ import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideRouter } from '@angular/router';
 import { App } from './app';
+import { SpeakerHub } from './core/speaker-hub';
+import { FakeSpeakerHub } from './testing/fake-speaker-hub';
 
 describe('App', () => {
   let http: HttpTestingController;
+  let hub: FakeSpeakerHub;
 
   beforeEach(async () => {
+    hub = new FakeSpeakerHub();
     await TestBed.configureTestingModule({
       imports: [App],
-      providers: [provideRouter([]), provideHttpClient(), provideHttpClientTesting()],
+      providers: [
+        provideRouter([]),
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        { provide: SpeakerHub, useValue: hub },
+      ],
     }).compileComponents();
     http = TestBed.inject(HttpTestingController);
   });
@@ -46,5 +55,11 @@ describe('App', () => {
     const page = await render('error');
 
     expect(page.querySelector('[data-testid="backend-status"]')?.textContent).toContain('Backend offline');
+  });
+
+  it('starts the live connection', async () => {
+    await render('ok');
+
+    expect(hub.start).toHaveBeenCalledOnce();
   });
 });

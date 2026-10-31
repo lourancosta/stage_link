@@ -1,0 +1,29 @@
+<h2>Speakers</h2>
+
+@switch (hub.state()) {
+  @case ('reconnecting') {
+    <p class="warning" data-testid="connection-warning">Reconnecting to the backend… the list may be out of date.</p>
+  }
+  @case ('disconnected') {
+    <p class="warning" data-testid="connection-warning">Not connected to the backend. Retrying every few seconds…</p>
+  }
+}
+
+@if (!hub.loaded()) {
+  <p class="loading">Looking for speakers…</p>
+} @else if (hub.speakers().length > 0) {
+  <div class="grid">
+    @for (speaker of hub.speakers(); track speaker.id) {
+      <a class="card" [routerLink]="['/speakers', speaker.id]" data-testid="speaker-card">
+        <span class="name">{{ speaker.name }}</span>
+        <span class="meta">{{ speaker.model }} · firmware {{ speaker.firmware }}</span>
+        <span class="meta address">{{ speaker.address }}:{{ speaker.tcpPort }}</span>
+      </a>
+    }
+  </div>
+} @else {
+  <div class="empty" data-testid="empty">
+    <p>No speakers found on the network.</p>
+    <p class="hint">Start a simulator: <code>dotnet run --project src/StageLink.Simulator.Host</code></p>
+  </div>
+}
