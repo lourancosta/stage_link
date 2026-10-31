@@ -1,17 +1,24 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ApiError, SpeakerApi } from '../core/speaker-api';
+import { SpeakerHub } from '../core/speaker-hub';
+import { FakeSpeakerHub } from '../testing/fake-speaker-hub';
 import { FakeSpeakerApi } from '../testing/fake-speaker-api';
 import { ControlPanel } from './control-panel';
 
 describe('ControlPanel', () => {
   let api: FakeSpeakerApi;
+  let hub: FakeSpeakerHub;
   let fixture: ComponentFixture<ControlPanel>;
 
   beforeEach(async () => {
     api = new FakeSpeakerApi();
+    hub = new FakeSpeakerHub();
     await TestBed.configureTestingModule({
       imports: [ControlPanel],
-      providers: [{ provide: SpeakerApi, useValue: api }],
+      providers: [
+        { provide: SpeakerApi, useValue: api },
+        { provide: SpeakerHub, useValue: hub },
+      ],
     }).compileComponents();
   });
 
@@ -101,5 +108,30 @@ describe('ControlPanel', () => {
     const page = await render();
 
     expect(text(page, 'load-error')).toContain('could not be reached');
+  });
+
+  // Keeping in sync with live telemetry
+
+  it('follows changes made elsewhere (from telemetry)', async () => {
+    const page = await render();
+
+    hub.pushTelemetry('SL-1', { temperature: 25, level: -60, limiterActive: false, gain: 3, muted: true, tilt: -2, faults: 'None' });
+    await fixture.whenStable();
+
+    expect(text(page, 'gain-value')).toBe('+3.0 dB');
+    expect(text(page, 'tilt-value')).toBe('-2.0°');
+    expect(text(page, 'mute-button')).toBe('Muted');
+  });
+
+  it('does not let telemetry undo a change that is still on its way', async () => {
+    api.setGain.mockReturnValue(new Promise(() => {})); // never answers
+    const page = await render();
+    await moveSlider(page, 'gain-slider', -3);
+
+    // Telemetry sent before the speaker applied the change still says -6.5.
+    hub.pushTelemetry('SL-1', { temperature: 25, level: -60, limiterActive: false, gain: -6.5, muted: false, tilt: 0, faults: 'None' });
+    await fixture.whenStable();
+
+    expect(text(page, 'gain-value')).toBe('-3.0 dB');
   });
 });

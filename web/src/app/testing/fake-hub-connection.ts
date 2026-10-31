@@ -5,6 +5,7 @@ import { HubConnectionLike } from '../core/hub-connection';
 export class FakeHubConnection implements HubConnectionLike {
   startCalls = 0;
   failNextStart = false;
+  invokeError: Error | null = null;
   readonly invoked: { method: string; args: unknown[] }[] = [];
 
   private readonly handlers = new Map<string, ((...args: any[]) => void)[]>();
@@ -26,6 +27,9 @@ export class FakeHubConnection implements HubConnectionLike {
 
   async invoke(method: string, ...args: unknown[]): Promise<any> {
     this.invoked.push({ method, args });
+    if (this.invokeError) {
+      throw this.invokeError;
+    }
   }
 
   onreconnecting(callback: () => void): void {

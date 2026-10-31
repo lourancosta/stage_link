@@ -1,5 +1,6 @@
 import { Component, effect, inject, input, signal, untracked } from '@angular/core';
 import { ApiError, SpeakerApi } from '../core/speaker-api';
+import { SpeakerHub } from '../core/speaker-hub';
 import { SPEAKER_LIMITS, SpeakerStatus } from '../core/speaker.models';
 
 type Setting = 'gain' | 'mute' | 'tilt';
@@ -14,6 +15,11 @@ type Setting = 'gain' | 'mute' | 'tilt';
 })
 export class ControlPanel {
   private readonly api = inject(SpeakerApi);
+  private readonly hub = inject(SpeakerHub);
+
+  // Changes sent but not yet answered. While > 0, telemetry is ignored, because
+  // a reading sent just before the speaker applied our change would undo it.
+  private pendingChanges = 0;
 
   readonly speakerId = input.required<string>();
 
@@ -27,6 +33,21 @@ export class ControlPanel {
     effect(() => {
       const id = this.speakerId();
       untracked(() => void this.load(id));
+    });
+
+    // Follow changes made elsewhere (another tab, another user) via telemetry.
+    effect(() => {
+      const reading = this.hub.telemetryFor(this.speakerId());
+      untracked(() => {
+        const current = this.status();
+        if (!reading || !current || this.pendingChanges > 0) {
+          return;
+        }
+
+        if (current.gain !== reading.gain || current.muted !== reading.muted || current.tilt !== reading.tilt) {
+          this.status.set({ ...current, gain: reading.gain, muted: reading.muted, tilt: reading.tilt });
+        }
+      });
     });
   }
 
@@ -85,6 +106,7 @@ export class ControlPanel {
 
     this.status.set({ ...previous, ...update }); // optimistic
     this.setError(setting, null);
+    this.pendingChanges++;
 
     try {
       await send();
@@ -92,6 +114,8 @@ export class ControlPanel {
       this.status.set(previous); // jump back
       resetControl?.(previous);
       this.setError(setting, messageOf(error));
+    } finally {
+      this.pendingChanges--;
     }
   }
 

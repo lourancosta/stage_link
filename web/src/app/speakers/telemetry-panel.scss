@@ -1,0 +1,110 @@
+.panel {
+  padding: 1.25rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+h3 {
+  margin: 0 0 1rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+dl {
+  display: grid;
+  grid-template-columns: 6.5rem 1fr;
+  gap: 0.9rem 0.75rem;
+  margin: 0;
+  align-items: center;
+}
+
+dt {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+dd {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  font-family: ui-monospace, monospace;
+  font-size: 0.9rem;
+}
+
+.hot {
+  color: var(--warn);
+}
+
+.danger {
+  color: var(--danger);
+}
+
+.level {
+  flex-wrap: nowrap;
+}
+
+.meter {
+  flex: 1;
+  height: 0.6rem;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.bar {
+  display: block;
+  height: 100%;
+  background: var(--ok);
+  transition: width 0.15s linear;
+}
+
+.bar.limited {
+  background: var(--warn);
+}
+
+.value {
+  min-width: 5.5rem;
+  text-align: right;
+}
+
+.light {
+  width: 0.6rem;
+  height: 0.6rem;
+  border-radius: 50%;
+  background: var(--border);
+}
+
+.light.on {
+  background: var(--warn);
+  box-shadow: 0 0 6px var(--warn);
+}
+
+.fault {
+  padding: 0.1rem 0.5rem;
+  border: 1px solid var(--danger);
+  border-radius: 4px;
+  color: var(--danger);
+  font-family: inherit;
+}
+
+.ok {
+  color: var(--ok);
+}
+
+.waiting {
+  margin: 0;
+  color: var(--text-muted);
+}
+
+.error {
+  margin: 0;
+  color: var(--danger);
+  font-size: 0.9rem;
+}

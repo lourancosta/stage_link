@@ -4,7 +4,10 @@
   <h2>{{ speaker.name }}</h2>
   <p class="meta">{{ speaker.model }} · firmware {{ speaker.firmware }} · {{ speaker.address }}:{{ speaker.tcpPort }}</p>
 
-  <app-control-panel [speakerId]="speaker.id" />
+  <div class="panels">
+    <app-control-panel [speakerId]="speaker.id" />
+    <app-telemetry-panel [speakerId]="speaker.id" />
+  </div>
 } @else if (!hub.loaded()) {
   <p class="meta loading">Loading…</p>
 } @else {

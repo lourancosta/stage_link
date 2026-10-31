@@ -1,0 +1,37 @@
+<section class="panel" aria-label="Live telemetry">
+  <h3>Live</h3>
+
+  @if (error(); as message) {
+    <p class="error" data-testid="telemetry-error">Live data unavailable: {{ message }}</p>
+  } @else if (reading(); as r) {
+    <dl>
+      <dt>Temperature</dt>
+      <dd data-testid="temperature" [class.hot]="hot()" [class.danger]="overheated()">{{ r.temperature.toFixed(1) }} °C</dd>
+
+      <dt>Level</dt>
+      <dd class="level">
+        <span class="meter" role="meter" aria-label="Output level" [attr.aria-valuenow]="r.level" aria-valuemin="-60" aria-valuemax="0">
+          <span class="bar" data-testid="level-bar" [class.limited]="r.limiterActive" [style.width.%]="levelPercent()"></span>
+        </span>
+        <span class="value" data-testid="level">{{ r.level.toFixed(1) }} dB</span>
+      </dd>
+
+      <dt>Limiter</dt>
+      <dd>
+        <span class="light" [class.on]="r.limiterActive"></span>
+        <span data-testid="limiter">{{ r.limiterActive ? 'Active' : 'Off' }}</span>
+      </dd>
+
+      <dt>Faults</dt>
+      <dd data-testid="faults">
+        @for (fault of faults(); track fault) {
+          <span class="fault" data-testid="fault">{{ fault }}</span>
+        } @empty {
+          <span class="ok">No faults</span>
+        }
+      </dd>
+    </dl>
+  } @else {
+    <p class="waiting">Waiting for live data…</p>
+  }
+</section>

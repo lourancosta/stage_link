@@ -17,3 +17,12 @@ h2 {
 .loading {
   margin-top: 1rem;
 }
+
+.panels {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 1rem;
+  align-items: start;
+  max-width: 1100px;
+  margin-top: 1.5rem;
+}

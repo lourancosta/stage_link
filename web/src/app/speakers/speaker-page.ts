@@ -2,11 +2,12 @@ import { Component, computed, inject, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { SpeakerHub } from '../core/speaker-hub';
 import { ControlPanel } from './control-panel';
+import { TelemetryPanel } from './telemetry-panel';
 
 // One speaker's page (/speakers/:id): details and controls.
 @Component({
   selector: 'app-speaker-page',
-  imports: [RouterLink, ControlPanel],
+  imports: [RouterLink, ControlPanel, TelemetryPanel],
   templateUrl: './speaker-page.html',
   styleUrl: './speaker-page.scss',
 })

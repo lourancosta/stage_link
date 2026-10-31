@@ -2,7 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { FakeHubConnection } from '../testing/fake-hub-connection';
 import { HUB_CONNECTION_FACTORY } from './hub-connection';
 import { SpeakerHub } from './speaker-hub';
-import { DiscoveredSpeaker } from './speaker.models';
+import { DiscoveredSpeaker, TelemetryReading } from './speaker.models';
 
 const mainL: DiscoveredSpeaker = {
   id: 'SL-51000',
@@ -12,6 +12,16 @@ const mainL: DiscoveredSpeaker = {
   address: '127.0.0.1',
   tcpPort: 51000,
   lastSeen: '2026-10-30T12:00:00Z',
+};
+
+const reading: TelemetryReading = {
+  temperature: 41.5,
+  level: -12.25,
+  limiterActive: true,
+  gain: -6.5,
+  muted: false,
+  tilt: 0,
+  faults: 'None',
 };
 
 describe('SpeakerHub', () => {
@@ -105,5 +115,63 @@ describe('SpeakerHub', () => {
 
     await vi.advanceTimersByTimeAsync(5000);
     expect(hub.state()).toBe('connected');
+  });
+
+  // Telemetry
+
+  it('asks the server to watch a speaker', async () => {
+    await hub.start();
+
+    await hub.watch('SL-51000');
+
+    expect(connection.invoked).toContainEqual({ method: 'WatchSpeaker', args: ['SL-51000'] });
+  });
+
+  it('watches as soon as it connects if asked before', async () => {
+    await hub.watch('SL-51000'); // not connected yet
+    expect(connection.invoked).toEqual([]);
+
+    await hub.start();
+
+    expect(connection.invoked).toContainEqual({ method: 'WatchSpeaker', args: ['SL-51000'] });
+  });
+
+  it('keeps the latest reading per speaker', async () => {
+    await hub.start();
+
+    connection.emit('Telemetry', 'SL-51000', reading);
+
+    expect(hub.telemetryFor('SL-51000')).toEqual(reading);
+    expect(hub.telemetryFor('SL-51010')).toBeUndefined();
+  });
+
+  it('unwatching tells the server and forgets the reading', async () => {
+    await hub.start();
+    await hub.watch('SL-51000');
+    connection.emit('Telemetry', 'SL-51000', reading);
+
+    await hub.unwatch('SL-51000');
+
+    expect(connection.invoked).toContainEqual({ method: 'UnwatchSpeaker', args: ['SL-51000'] });
+    expect(hub.telemetryFor('SL-51000')).toBeUndefined();
+  });
+
+  it('watches again after reconnecting (the server forgot)', async () => {
+    await hub.start();
+    await hub.watch('SL-51000');
+    connection.invoked.length = 0;
+
+    connection.simulateReconnecting();
+    connection.simulateReconnected();
+    await Promise.resolve();
+
+    expect(connection.invoked).toContainEqual({ method: 'WatchSpeaker', args: ['SL-51000'] });
+  });
+
+  it('reports a failed watch to the caller', async () => {
+    await hub.start();
+    connection.invokeError = new Error("No speaker with id 'SL-NOPE' has been discovered.");
+
+    await expect(hub.watch('SL-NOPE')).rejects.toThrow('SL-NOPE');
   });
 });
