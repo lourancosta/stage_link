@@ -1,6 +1,7 @@
 using System.Text.Json.Serialization;
 using StageLink.Web.Api;
 using StageLink.Web.Discovery;
+using StageLink.Web.Monitoring;
 using StageLink.Web.Realtime;
 using StageLink.Web.Speakers;
 
@@ -16,13 +17,21 @@ builder.Services.AddHostedService<DiscoveryService>();
 builder.Services.Configure<SpeakerOptions>(builder.Configuration.GetSection("Speakers"));
 builder.Services.AddSingleton<SpeakerManager>();
 
-// Live updates: SignalR hub, speaker list pushes and Telemetry forwarding.
-// Enums (like Faults) are sent as names instead of numbers.
+// Monitoring: follows every speaker, keeps temperature history and an event log.
+builder.Services.Configure<MonitoringOptions>(builder.Configuration.GetSection("Monitoring"));
+builder.Services.AddSingleton<SpeakerHistory>();
+builder.Services.AddSingleton<SpeakerEventLog>();
+builder.Services.AddSingleton<SpeakerMonitor>();
+builder.Services.AddHostedService(services => services.GetRequiredService<SpeakerMonitor>());
+
+// Live updates: SignalR hub, speaker list pushes, readings and events per speaker.
+// Enums (like Faults and event severity) are sent as names instead of numbers,
+// over SignalR and over HTTP.
 builder.Services.AddSignalR()
     .AddJsonProtocol(options => options.PayloadSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
+builder.Services.ConfigureHttpJsonOptions(options => options.SerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 builder.Services.AddHostedService<SpeakerListBroadcaster>();
-builder.Services.AddSingleton<TelemetryForwarder>();
-builder.Services.AddHostedService(services => services.GetRequiredService<TelemetryForwarder>());
+builder.Services.AddHostedService<LiveUpdatesBroadcaster>();
 
 // Errors: speaker exceptions become HTTP status codes with a ProblemDetails body.
 builder.Services.AddProblemDetails();

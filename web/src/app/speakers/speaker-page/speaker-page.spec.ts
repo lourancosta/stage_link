@@ -38,14 +38,16 @@ describe('SpeakerPage', () => {
     expect(page.querySelector('h2')?.textContent).toContain('Main L');
   });
 
-  it('shows the control panel for a known speaker', async () => {
+  it('shows controls, telemetry, history, events and settings for a known speaker', async () => {
     hub.speakers.set([
       { id: 'SL-51000', name: 'Main L', model: 'StageLink Sim', firmware: '1.0.0', address: '127.0.0.1', tcpPort: 51000, lastSeen: '' },
     ]);
 
     const page = await render('SL-51000');
 
-    expect(page.querySelector('app-control-panel')).not.toBeNull();
+    for (const selector of ['app-control-panel', 'app-telemetry-panel', 'app-temperature-chart', 'app-event-log', 'app-settings-card']) {
+      expect(page.querySelector(selector), selector).not.toBeNull();
+    }
   });
 
   it('says so when the speaker is not (or no longer) on the network', async () => {

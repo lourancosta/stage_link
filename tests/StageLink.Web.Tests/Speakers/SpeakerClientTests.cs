@@ -134,4 +134,23 @@ public class SpeakerClientTests : IDisposable
 
         await Assert.ThrowsAsync<InvalidDataException>(() => setGain);
     }
+
+    [Fact]
+    public async Task SetNameAsync_RenamesTheSpeaker()
+    {
+        await using SpeakerClient client = await ConnectAsync();
+
+        await client.SetNameAsync("Main Left", _timeout.Token);
+
+        Assert.Equal("Main Left", _simulator.State.Name);
+    }
+
+    [Fact]
+    public async Task SetNameAsync_NonAsciiName_ThrowsBeforeSending()
+    {
+        await using SpeakerClient client = await ConnectAsync();
+
+        await Assert.ThrowsAsync<ArgumentException>(() => client.SetNameAsync("Café", _timeout.Token));
+        Assert.Equal("Main L", _simulator.State.Name);
+    }
 }

@@ -34,3 +34,19 @@ export const SPEAKER_LIMITS = {
   gain: { min: -60, max: 12, step: 0.5 },
   tilt: { min: -15, max: 15, step: 0.5 },
 } as const;
+
+// One point of a speaker's temperature history (the backend keeps 10 minutes).
+export interface TemperatureSample {
+  time: string;
+  temperature: number;
+  level: number;
+}
+
+export type EventSeverity = 'Info' | 'Warning' | 'Error';
+
+// Something that happened to a speaker (limiter, faults, settings, connection, renames).
+export interface SpeakerEvent {
+  time: string;
+  severity: EventSeverity;
+  message: string;
+}

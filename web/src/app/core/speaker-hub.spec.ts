@@ -174,4 +174,26 @@ describe('SpeakerHub', () => {
 
     await expect(hub.watch('SL-NOPE')).rejects.toThrow('SL-NOPE');
   });
+
+  // Live events
+
+  it('collects live events per speaker, in arrival order', async () => {
+    await hub.start();
+
+    connection.emit('EventRecorded', 'SL-51000', { time: '2026-10-31T20:00:00Z', severity: 'Warning', message: 'Limiter engaged' });
+    connection.emit('EventRecorded', 'SL-51000', { time: '2026-10-31T20:00:05Z', severity: 'Info', message: 'Limiter released' });
+
+    expect(hub.liveEventsFor('SL-51000').map((e) => e.message)).toEqual(['Limiter engaged', 'Limiter released']);
+    expect(hub.liveEventsFor('SL-51010')).toEqual([]);
+  });
+
+  it('forgets live events when unwatching', async () => {
+    await hub.start();
+    await hub.watch('SL-51000');
+    connection.emit('EventRecorded', 'SL-51000', { time: '2026-10-31T20:00:00Z', severity: 'Info', message: 'Muted' });
+
+    await hub.unwatch('SL-51000');
+
+    expect(hub.liveEventsFor('SL-51000')).toEqual([]);
+  });
 });

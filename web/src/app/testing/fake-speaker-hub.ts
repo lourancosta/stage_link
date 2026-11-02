@@ -1,6 +1,6 @@
 import { signal } from '@angular/core';
 import { HubState } from '../core/speaker-hub';
-import { DiscoveredSpeaker, TelemetryReading } from '../core/speaker.models';
+import { DiscoveredSpeaker, SpeakerEvent, TelemetryReading } from '../core/speaker.models';
 
 // Replaces SpeakerHub in component tests: tests set the signals directly.
 export class FakeSpeakerHub {
@@ -14,6 +14,16 @@ export class FakeSpeakerHub {
 
   telemetryFor(id: string): TelemetryReading | undefined {
     return this.telemetry()[id];
+  }
+
+  readonly liveEvents = signal<Record<string, SpeakerEvent[]>>({});
+
+  liveEventsFor(id: string): SpeakerEvent[] {
+    return this.liveEvents()[id] ?? [];
+  }
+
+  pushEvent(id: string, event: SpeakerEvent): void {
+    this.liveEvents.update((all) => ({ ...all, [id]: [...(all[id] ?? []), event] }));
   }
 
   pushTelemetry(id: string, reading: TelemetryReading): void {

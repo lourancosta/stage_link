@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http.Connections;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.AspNetCore.SignalR.Client;
+using System.Net.Http.Json;
 using Microsoft.Extensions.DependencyInjection;
 using StageLink.Web.Discovery;
 using StageLink.Web.Tests.Speakers;
@@ -27,6 +28,7 @@ public class SpeakerHubTests : IAsyncLifetime
         {
             builder.UseSetting("Discovery:ListCheckInterval", "00:00:00.100");
             builder.UseSetting("Speakers:TelemetryInterval", "00:00:00.100");
+            builder.UseSetting("Monitoring:CheckInterval", "00:00:00.100");
         });
     }
 
@@ -159,5 +161,32 @@ public class SpeakerHubTests : IAsyncLifetime
         await Task.Delay(500, _timeout.Token); // 5 Telemetry intervals
 
         Assert.Equal(afterUnwatch, Volatile.Read(ref count));
+    }
+
+    private sealed record EventDto(DateTimeOffset Time, string Severity, string Message);
+
+    [Fact]
+    public async Task WatchSpeaker_ReceivesNewEventsLive()
+    {
+        AddSpeaker();
+        var gainEvent = new TaskCompletionSource<(string Id, EventDto Event)>();
+        _hub.On<string, EventDto>("EventRecorded", (id, e) =>
+        {
+            if (e.Message.StartsWith("Gain changed"))
+            {
+                gainEvent.TrySetResult((id, e));
+            }
+        });
+        await _hub.StartAsync(_timeout.Token);
+        await _hub.InvokeAsync("WatchSpeaker", SpeakerId, _timeout.Token);
+
+        using HttpClient http = _factory.CreateClient();
+        await Task.Delay(500, _timeout.Token); // let the monitor connect and read a first value
+        await http.PutAsJsonAsync($"/api/speakers/{SpeakerId}/gain", new { Gain = -3.0 }, _timeout.Token);
+
+        (string id, EventDto received) = await gainEvent.Task.WaitAsync(_timeout.Token);
+        Assert.Equal(SpeakerId, id);
+        Assert.Equal("Gain changed to -3.0 dB", received.Message);
+        Assert.Equal("Info", received.Severity);
     }
 }

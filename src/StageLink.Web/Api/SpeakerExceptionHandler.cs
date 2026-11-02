@@ -19,6 +19,7 @@ public sealed class SpeakerExceptionHandler(IProblemDetailsService problemDetail
                 StatusCodes.Status422UnprocessableEntity,
                 "Value out of range"),
             ArgumentOutOfRangeException => (StatusCodes.Status422UnprocessableEntity, "Value out of range"),
+            ArgumentException => (StatusCodes.Status422UnprocessableEntity, "Invalid value"), // after its subclass above
             SpeakerCommandException => (StatusCodes.Status400BadRequest, "Command rejected by speaker"),
             SpeakerUnavailableException or TimeoutException or IOException => (
                 StatusCodes.Status503ServiceUnavailable,

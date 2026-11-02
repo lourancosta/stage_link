@@ -76,4 +76,29 @@ describe('SpeakerApi', () => {
     expect(error.status).toBe(0);
     expect(error.message).toBe('Could not reach the backend.');
   });
+
+  it('sends a new name', async () => {
+    const result = api.setName('SL-1', 'Main Left');
+    const request = http.expectOne({ method: 'PUT', url: '/api/speakers/SL-1/name' });
+    request.flush(null, { status: 204, statusText: 'No Content' });
+    await result;
+
+    expect(request.request.body).toEqual({ name: 'Main Left' });
+  });
+
+  it('reads the temperature history', async () => {
+    const result = api.getHistory('SL-1');
+    http.expectOne({ method: 'GET', url: '/api/speakers/SL-1/history' })
+      .flush([{ time: '2026-10-31T20:00:00Z', temperature: 30, level: -20 }]);
+
+    expect(await result).toEqual([{ time: '2026-10-31T20:00:00Z', temperature: 30, level: -20 }]);
+  });
+
+  it('reads the event log', async () => {
+    const result = api.getEvents('SL-1');
+    http.expectOne({ method: 'GET', url: '/api/speakers/SL-1/events' })
+      .flush([{ time: '2026-10-31T20:00:00Z', severity: 'Warning', message: 'Limiter engaged' }]);
+
+    expect(await result).toEqual([{ time: '2026-10-31T20:00:00Z', severity: 'Warning', message: 'Limiter engaged' }]);
+  });
 });

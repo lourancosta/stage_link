@@ -1,4 +1,4 @@
-import { SpeakerStatus } from '../core/speaker.models';
+import { SpeakerEvent, SpeakerStatus, TemperatureSample } from '../core/speaker.models';
 
 // Replaces SpeakerApi in component tests. Each method is a spy that tests can
 // make succeed or fail.
@@ -12,4 +12,7 @@ export class FakeSpeakerApi {
   readonly setGain = vi.fn(async (_id: string, _gain: number): Promise<void> => {});
   readonly setMute = vi.fn(async (_id: string, _muted: boolean): Promise<void> => {});
   readonly setTilt = vi.fn(async (_id: string, _tilt: number): Promise<void> => {});
+  readonly setName = vi.fn(async (_id: string, _name: string): Promise<void> => {});
+  readonly getHistory = vi.fn(async (_id: string): Promise<TemperatureSample[]> => []);
+  readonly getEvents = vi.fn(async (_id: string): Promise<SpeakerEvent[]> => []);
 }

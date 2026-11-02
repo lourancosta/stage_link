@@ -1,0 +1,32 @@
+<section class="card" aria-label="Settings">
+  <h3>Settings</h3>
+
+  <!-- A real form: pressing Enter in the field saves too. -->
+  <form (submit)="$event.preventDefault(); save()">
+    <label [attr.for]="inputId()">Name</label>
+    <div class="row">
+      <input
+        [id]="inputId()"
+        type="text"
+        autocomplete="off"
+        maxlength="255"
+        [value]="draft()"
+        (input)="onInput($event)"
+        data-testid="name-input"
+      />
+      <button type="submit" [disabled]="!canSave()" data-testid="save-name">
+        {{ saving() ? 'Saving…' : 'Save' }}
+      </button>
+    </div>
+
+    @if (hint(); as message) {
+      <p class="hint" data-testid="name-hint">{{ message }}</p>
+    }
+    @if (error(); as message) {
+      <p class="error" data-testid="name-error">{{ message }}</p>
+    }
+    @if (saved()) {
+      <p class="saved" data-testid="name-saved">Saved. The new name appears everywhere within a second.</p>
+    }
+  </form>
+</section>

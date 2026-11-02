@@ -1,13 +1,13 @@
 using Microsoft.AspNetCore.SignalR;
 using StageLink.Web.Discovery;
-using StageLink.Web.Speakers;
 
 namespace StageLink.Web.Realtime;
 
 // The browser's live connection (/hubs/speakers).
-// A new hub object is created for every call, so it must not keep state itself;
-// shared state lives in TelemetryForwarder and SpeakerRegistry.
-public sealed class SpeakerHub(SpeakerRegistry registry, TelemetryForwarder forwarder) : Hub<ISpeakerHubClient>
+// Watching a speaker just joins its group; the backend's SpeakerMonitor already
+// follows every speaker, and LiveUpdatesBroadcaster sends its readings and events
+// to the group. SignalR removes a closed connection from its groups by itself.
+public sealed class SpeakerHub(SpeakerRegistry registry) : Hub<ISpeakerHubClient>
 {
     // Send the current list right away, so the page doesn't wait for the next change.
     public override async Task OnConnectedAsync()
@@ -18,31 +18,18 @@ public sealed class SpeakerHub(SpeakerRegistry registry, TelemetryForwarder forw
 
     public async Task WatchSpeaker(string speakerId)
     {
-        await Groups.AddToGroupAsync(Context.ConnectionId, TelemetryForwarder.GroupName(speakerId));
-
-        try
+        if (registry.Find(speakerId) is null)
         {
-            await forwarder.WatchAsync(Context.ConnectionId, speakerId, Context.ConnectionAborted);
-        }
-        catch (Exception ex) when (ex is SpeakerNotFoundException or SpeakerUnavailableException or SpeakerCommandException or TimeoutException or IOException)
-        {
-            await Groups.RemoveFromGroupAsync(Context.ConnectionId, TelemetryForwarder.GroupName(speakerId));
-
             // Only HubException messages reach the browser; other exceptions become a
             // generic error so internal details never leak.
-            throw new HubException(ex.Message);
+            throw new HubException($"No speaker with id '{speakerId}' has been discovered.");
         }
+
+        await Groups.AddToGroupAsync(Context.ConnectionId, LiveUpdatesBroadcaster.GroupName(speakerId));
     }
 
     public async Task UnwatchSpeaker(string speakerId)
     {
-        await Groups.RemoveFromGroupAsync(Context.ConnectionId, TelemetryForwarder.GroupName(speakerId));
-        await forwarder.UnwatchAsync(Context.ConnectionId, speakerId);
-    }
-
-    public override async Task OnDisconnectedAsync(Exception? exception)
-    {
-        await forwarder.RemoveConnectionAsync(Context.ConnectionId);
-        await base.OnDisconnectedAsync(exception);
+        await Groups.RemoveFromGroupAsync(Context.ConnectionId, LiveUpdatesBroadcaster.GroupName(speakerId));
     }
 }

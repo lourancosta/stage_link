@@ -1,7 +1,7 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable, PendingTasks, inject } from '@angular/core';
 import { Observable, firstValueFrom } from 'rxjs';
-import { SpeakerStatus } from './speaker.models';
+import { SpeakerEvent, SpeakerStatus, TemperatureSample } from './speaker.models';
 
 // A failed API call, with the backend's own message (from ProblemDetails).
 export class ApiError extends Error {
@@ -40,6 +40,18 @@ export class SpeakerApi {
 
   setTilt(id: string, tilt: number): Promise<void> {
     return this.send(this.http.put<void>(this.url(id, 'tilt'), { tilt }));
+  }
+
+  setName(id: string, name: string): Promise<void> {
+    return this.send(this.http.put<void>(this.url(id, 'name'), { name }));
+  }
+
+  getHistory(id: string): Promise<TemperatureSample[]> {
+    return this.send(this.http.get<TemperatureSample[]>(this.url(id, 'history')));
+  }
+
+  getEvents(id: string): Promise<SpeakerEvent[]> {
+    return this.send(this.http.get<SpeakerEvent[]>(this.url(id, 'events')));
   }
 
   // encodeURIComponent: an id with spaces or slashes can't break the URL.

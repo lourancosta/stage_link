@@ -1,10 +1,11 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { HUB_CONNECTION_FACTORY } from './hub-connection';
-import { DiscoveredSpeaker, TelemetryReading } from './speaker.models';
+import { DiscoveredSpeaker, SpeakerEvent, TelemetryReading } from './speaker.models';
 
 export type HubState = 'disconnected' | 'connecting' | 'connected' | 'reconnecting';
 
 const RETRY_DELAY_MS = 5000;
+const MAX_LIVE_EVENTS = 200;
 
 // The app's live connection to the backend (SignalR, /hubs/speakers).
 // Keeps the discovered speakers in a signal that pages read directly.
@@ -27,6 +28,9 @@ export class SpeakerHub {
   // Latest Telemetry reading per watched speaker id.
   private readonly telemetryState = signal<Record<string, TelemetryReading>>({});
 
+  // Events that arrived live (since watching), per speaker, oldest first.
+  private readonly liveEventsState = signal<Record<string, SpeakerEvent[]>>({});
+
   // Speakers this browser wants Telemetry for. Remembered so they can be
   // watched again after a reconnect: the server forgets (new connection id).
   private readonly watched = new Set<string>();
@@ -39,6 +43,10 @@ export class SpeakerHub {
 
     this.connection.on('Telemetry', (speakerId: string, reading: TelemetryReading) =>
       this.telemetryState.update((all) => ({ ...all, [speakerId]: reading })),
+    );
+
+    this.connection.on('EventRecorded', (speakerId: string, event: SpeakerEvent) =>
+      this.liveEventsState.update((all) => ({ ...all, [speakerId]: [...(all[speakerId] ?? []), event].slice(-MAX_LIVE_EVENTS) })),
     );
 
     // Short drops: SignalR's automatic reconnect handles them.
@@ -72,6 +80,10 @@ export class SpeakerHub {
     return this.telemetryState()[id];
   }
 
+  liveEventsFor(id: string): SpeakerEvent[] {
+    return this.liveEventsState()[id] ?? [];
+  }
+
   // Start receiving Telemetry for a speaker. If not connected yet, it happens
   // as soon as the connection is up. Rejects if the server refuses (e.g. unknown id).
   async watch(id: string): Promise<void> {
@@ -84,6 +96,7 @@ export class SpeakerHub {
   async unwatch(id: string): Promise<void> {
     this.watched.delete(id);
     this.telemetryState.update(({ [id]: _removed, ...others }) => others);
+    this.liveEventsState.update(({ [id]: _removed, ...others }) => others);
 
     if (this.hubState() === 'connected') {
       try {

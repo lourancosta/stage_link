@@ -56,6 +56,20 @@ public sealed class SpeakerClient : IAsyncDisposable
         await SendAsync(Command.SetTilt, FixedPointPayload(tilt), Command.Ack, cancellationToken);
     }
 
+    // Throws ArgumentException before sending if the name can't be sent
+    // (empty, longer than 255 characters, or not ASCII).
+    public async Task SetNameAsync(string name, CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrEmpty(name))
+        {
+            throw new ArgumentException("Name must not be empty.", nameof(name));
+        }
+
+        var payload = new ByteWriter();
+        payload.WriteString(name);
+        await SendAsync(Command.SetName, payload.ToArray(), Command.Ack, cancellationToken);
+    }
+
     public async Task SubscribeAsync(TimeSpan interval, CancellationToken cancellationToken = default)
     {
         double milliseconds = Math.Round(interval.TotalMilliseconds);

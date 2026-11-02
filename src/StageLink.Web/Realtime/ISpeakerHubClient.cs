@@ -1,4 +1,5 @@
 using StageLink.Web.Discovery;
+using StageLink.Web.Monitoring;
 using StageLink.Web.Speakers;
 
 namespace StageLink.Web.Realtime;
@@ -10,4 +11,6 @@ public interface ISpeakerHubClient
     Task SpeakersChanged(IReadOnlyList<DiscoveredSpeaker> speakers);
 
     Task Telemetry(string speakerId, TelemetryReading reading);
+
+    Task EventRecorded(string speakerId, SpeakerEvent speakerEvent);
 }

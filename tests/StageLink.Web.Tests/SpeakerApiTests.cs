@@ -175,4 +175,30 @@ public class SpeakerApiTests : IDisposable
 
         Assert.Equal("Second", status?.Name);
     }
+
+    // Renaming
+
+    [Fact]
+    public async Task PutName_RenamesTheSpeaker()
+    {
+        TestSimulator simulator = AddSpeaker("Main L");
+
+        HttpResponseMessage response = await _client.PutAsJsonAsync($"/api/speakers/{SpeakerId}/name", new { Name = "Main Left" });
+
+        Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
+        Assert.Equal("Main Left", simulator.State.Name);
+    }
+
+    [Theory]
+    [InlineData("")]
+    [InlineData("Café")]
+    public async Task PutName_InvalidName_Returns422(string name)
+    {
+        TestSimulator simulator = AddSpeaker("Main L");
+
+        HttpResponseMessage response = await _client.PutAsJsonAsync($"/api/speakers/{SpeakerId}/name", new { Name = name });
+
+        Assert.Equal(HttpStatusCode.UnprocessableEntity, response.StatusCode);
+        Assert.Equal("Main L", simulator.State.Name);
+    }
 }

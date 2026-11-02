@@ -1,0 +1,39 @@
+<section class="card" aria-label="Temperature history">
+  <div class="card-header">
+    <h3>Temperature · last 10 minutes</h3>
+    @if (current() !== undefined) {
+      <span class="current" data-testid="current-temperature">{{ current()!.toFixed(1) }} °C</span>
+    }
+  </div>
+
+  @if (error(); as message) {
+    <p class="error">{{ message }}</p>
+  } @else if (samples().length === 0) {
+    <p class="waiting">Collecting data…</p>
+  } @else {
+    <div class="plot">
+      <div class="y-axis">
+        <span>{{ chart().max }} °C</span>
+        <span>{{ chart().min }} °C</span>
+      </div>
+
+      <svg
+        [attr.viewBox]="'0 0 ' + width + ' ' + height"
+        preserveAspectRatio="none"
+        role="img"
+        [attr.aria-label]="'Temperature over the last 10 minutes, now ' + current()!.toFixed(1) + ' degrees'"
+      >
+        <!-- non-scaling-stroke: lines stay 1–2 px thick however the chart is stretched -->
+        <line class="threshold" x1="0" [attr.y1]="chart().thresholdY" [attr.x2]="width" [attr.y2]="chart().thresholdY" vector-effect="non-scaling-stroke" />
+        <polyline class="line" data-testid="temperature-line" [attr.points]="chart().points" vector-effect="non-scaling-stroke" />
+      </svg>
+
+      <div class="x-axis">
+        <span>10 min ago</span>
+        <span>now</span>
+      </div>
+    </div>
+
+    <p class="legend"><span class="swatch"></span><span data-testid="threshold-label">70 °C overtemperature limit</span></p>
+  }
+</section>

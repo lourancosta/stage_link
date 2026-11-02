@@ -1,0 +1,19 @@
+<section class="card" aria-label="Event log">
+  <h3>Event log</h3>
+
+  @if (error(); as message) {
+    <p class="error" data-testid="events-error">{{ message }}</p>
+  } @else if (events().length > 0) {
+    <ol class="events">
+      @for (event of events(); track event.time + event.message) {
+        <li class="event" [class]="'event ' + event.severity.toLowerCase()" data-testid="event">
+          <time [attr.datetime]="event.time">{{ event.time | date: 'HH:mm:ss' }}</time>
+          <span class="badge">{{ event.severity }}</span>
+          <span class="message" data-testid="event-message">{{ event.message }}</span>
+        </li>
+      }
+    </ol>
+  } @else if (loaded()) {
+    <p class="empty">No events yet.</p>
+  }
+</section>

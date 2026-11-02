@@ -51,6 +51,19 @@ public class SpeakerRegistry
         }
     }
 
+    // After a successful rename, show the new name right away instead of waiting
+    // for the speaker's next announcement (up to 2 seconds).
+    public void Rename(string id, string name)
+    {
+        lock (_lock)
+        {
+            if (_speakers.TryGetValue(id, out DiscoveredSpeaker? speaker))
+            {
+                _speakers[id] = speaker with { Name = name };
+            }
+        }
+    }
+
     // A speaker heard recently, or null if it's unknown or has gone silent.
     public DiscoveredSpeaker? Find(string id)
     {

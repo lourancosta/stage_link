@@ -7,6 +7,9 @@
   <div class="panels">
     <app-control-panel [speakerId]="speaker.id" />
     <app-telemetry-panel [speakerId]="speaker.id" />
+    <app-temperature-chart [speakerId]="speaker.id" />
+    <app-event-log [speakerId]="speaker.id" />
+    <app-settings-card [speakerId]="speaker.id" [name]="speaker.name" />
   </div>
 } @else if (!hub.loaded()) {
   <p class="meta loading">Loading…</p>

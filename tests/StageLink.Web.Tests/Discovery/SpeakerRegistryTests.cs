@@ -116,4 +116,22 @@ public class SpeakerRegistryTests
         Assert.Null(_registry.Find("SL-1"));
         Assert.Null(_registry.Find("SL-404"));
     }
+
+    [Fact]
+    public void Rename_ChangesTheNameRightAway()
+    {
+        _registry.Update(Speaker("SL-1", name: "Main L"));
+
+        _registry.Rename("SL-1", "Main Left");
+
+        Assert.Equal("Main Left", _registry.Find("SL-1")?.Name);
+    }
+
+    [Fact]
+    public void Rename_UnknownSpeaker_DoesNothing()
+    {
+        _registry.Rename("SL-404", "Ghost");
+
+        Assert.Empty(_registry.GetAll());
+    }
 }

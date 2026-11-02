@@ -53,8 +53,13 @@ Browsers can't open raw TCP connections or listen for UDP, so the backend is the
   | `PUT /api/speakers/{id}/gain` | `{ "gain": -6.5 }` | `204` |
   | `PUT /api/speakers/{id}/mute` | `{ "muted": true }` | `204` |
   | `PUT /api/speakers/{id}/tilt` | `{ "tilt": 7.5 }` | `204` |
+  | `PUT /api/speakers/{id}/name` | `{ "name": "Main Left" }` | `204` |
+  | `GET /api/speakers/{id}/history` | | `200` `[{ time, temperature, level }]`, last 10 minutes, oldest first |
+  | `GET /api/speakers/{id}/events` | | `200` `[{ time, severity, message }]`, newest first |
 
   Errors return ProblemDetails JSON: `404` unknown speaker, `422` value out of range, `400` other rejected command, `503` speaker unreachable or not answering, `502` invalid reply.
+- [x] Rename speakers: `SetName` (`0x23`) in the protocol and simulator, `PUT /api/speakers/{id}/name`
+- [x] `SpeakerMonitor`: follows every discovered speaker (one subscription each), keeps 10 minutes of temperature history and an event log, detects going offline / back online
 - [x] SignalR hub (`/hubs/speakers`): push the speaker list and live Telemetry to the browser
 
   | Direction | Message | When |
@@ -62,6 +67,7 @@ Browsers can't open raw TCP connections or listen for UDP, so the backend is the
   | server → browser | `SpeakersChanged(speakers)` | on connect, then whenever the list changes |
   | browser → server | `WatchSpeaker(id)` / `UnwatchSpeaker(id)` | a speaker's page opens / closes |
   | server → browser | `Telemetry(id, reading)` | every 200 ms, only to browsers watching that speaker |
+  | server → browser | `EventRecorded(id, event)` | when something happens, only to browsers watching that speaker |
 
 **Frontend (Angular, TypeScript)**
 - [x] Project setup (`web/`, Angular 21, Vitest), dev proxy to the backend, app shell with backend status
@@ -70,6 +76,8 @@ Browsers can't open raw TCP connections or listen for UDP, so the backend is the
 - [x] Speaker list (live over SignalR, with loading, empty and connection-lost states); speaker page route `/speakers/:id` (lazy-loaded)
 - [x] Control panel: gain and tilt sliders, mute toggle, error messages from the backend (optimistic updates that jump back on failure)
 - [x] Live telemetry: temperature, level meter, limiter, faults; controls follow changes made elsewhere
+- [x] Dashboard: every speaker card shows compact controls and live telemetry
+- [x] Speaker page: temperature history chart (SVG), event log, settings (rename)
 
 **Finish**
 - [x] README: what the project is, architecture diagram, how to run it, screenshots
@@ -99,6 +107,7 @@ Gain and tilt are fixed-point (value x 100, 16-bit signed).
 | `0x20`        | SetGain                 | app → speaker       | gain (2 bytes, signed) |
 | `0x21`        | SetMute                 | app → speaker       | 1 byte: 1 = on, 0 = off |
 | `0x22`        | SetTilt                 | app → speaker       | angle (2 bytes, signed) |
+| `0x23`        | SetName                 | app → speaker       | new name (1 byte length + ASCII, 1–255 characters) |
 | `0x30`/`0x31` | Subscribe / Unsubscribe | app → speaker       | interval in ms |
 | `0x32`        | Telemetry               | speaker → app       | temperature, level, limiter, gain, mute, tilt, faults |
 | `0x7E`/`0x7F` | Ack / Nack              | speaker → app       | Nack carries an error code |
