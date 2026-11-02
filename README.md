@@ -23,7 +23,7 @@ On a phone, the cards stack into a single column:
 
 Each speaker also has its own page with what doesn't fit in a card: a temperature history chart, the event log and settings. Here, a speaker driven at +12 dB overheats past the 70 °C limit and cools down after being muted:
 
-![Speaker page: controls, live telemetry, a temperature chart crossing the 70 °C limit, the event log and settings](docs/images/speaker-page.png)
+![Speaker page: controls, live telemetry, a temperature chart crossing the 70 °C limit, the event log and settings](docs/images/speaker-details.png)
 
 ## Architecture
 
