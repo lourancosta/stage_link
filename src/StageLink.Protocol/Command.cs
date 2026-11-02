@@ -15,6 +15,7 @@ public enum Command : byte
     SetGain = 0x20,
     SetMute = 0x21,
     SetTilt = 0x22,
+    SetName = 0x23,
 
     // Live data
     Subscribe = 0x30,

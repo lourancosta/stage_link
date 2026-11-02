@@ -319,4 +319,55 @@ public class SpeakerTests
             ],
             announce.Payload);
     }
+
+    // SetName
+
+    private static byte[] NamePayload(string name)
+    {
+        var writer = new ByteWriter();
+        writer.WriteString(name);
+        return writer.ToArray();
+    }
+
+    [Fact]
+    public void Handle_SetName_RenamesAndAcks()
+    {
+        Frame reply = Send(new Frame(Command.SetName, 70, NamePayload("Main Left")));
+
+        AssertAck(reply, 70);
+        Assert.Equal("Main Left", _state.Name);
+    }
+
+    [Fact]
+    public void Handle_SetName_InvalidName_NacksAndKeepsName()
+    {
+        Frame reply = Send(new Frame(Command.SetName, 71, NamePayload("")));
+
+        AssertNack(reply, 71, NackCode.InvalidPayload);
+        Assert.Equal("Main L", _state.Name);
+    }
+
+    [Theory]
+    [InlineData(new byte[] { })]                         // nothing at all
+    [InlineData(new byte[] { 0x05, 0x41, 0x42 })]        // says 5 characters, has 2
+    [InlineData(new byte[] { 0x01, 0xE9 })]              // not ASCII
+    [InlineData(new byte[] { 0x01, 0x41, 0x42 })]        // extra byte after the name
+    public void Handle_SetName_MalformedPayload_Nacks(byte[] payload)
+    {
+        Frame reply = Send(new Frame(Command.SetName, 72, payload));
+
+        AssertNack(reply, 72, NackCode.InvalidPayload);
+        Assert.Equal("Main L", _state.Name);
+    }
+
+    [Fact]
+    public void BuildAnnounce_UsesTheNewName()
+    {
+        Send(new Frame(Command.SetName, 73, NamePayload("Main Left")));
+
+        var payload = new ByteReader(_speaker.BuildAnnounce(1, 51000).Payload);
+        payload.ReadString(); // id
+
+        Assert.Equal("Main Left", payload.ReadString());
+    }
 }

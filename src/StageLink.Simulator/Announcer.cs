@@ -49,8 +49,9 @@ public class Announcer
                 // ushort wraps from 65535 back to 0, which is fine for a counter.
                 _messageNumber++;
 
-                // No lock needed: BuildAnnounce only reads the name and identity,
-                // which never change after the speaker is created.
+                // No lock needed: the identity never changes, and the name is a string,
+                // which is replaced as a whole (reading a reference is atomic in .NET),
+                // so this sees either the old name or the new one, never a mix.
                 byte[] datagram = _speaker.BuildAnnounce(_messageNumber, _tcpPort).Encode();
 
                 foreach (IPEndPoint destination in _destinations)

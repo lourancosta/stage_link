@@ -10,7 +10,7 @@ public class SpeakerState
     public const double MinTilt = -15.0;
     public const double MaxTilt = 15.0;
 
-    public string Name { get; }
+    public string Name { get; private set; }
     public double Gain { get; private set; }
     public bool Muted { get; private set; }
     public double Tilt { get; private set; }
@@ -21,20 +21,15 @@ public class SpeakerState
     public bool LimiterActive { get; private set; }
     public Faults Faults { get; private set; } = Faults.None;
 
-    // The name is sent in the State reply as 1 length byte + ASCII characters,
-    // so it must fit those rules.
     public SpeakerState(string name)
     {
-        if (name.Length == 0 || name.Length > byte.MaxValue)
-        {
-            throw new ArgumentException("Name must be 1 to 255 characters long.", nameof(name));
-        }
+        ValidateName(name);
+        Name = name;
+    }
 
-        if (!Ascii.IsValid(name))
-        {
-            throw new ArgumentException("Name must contain only ASCII characters.", nameof(name));
-        }
-
+    public void SetName(string name)
+    {
+        ValidateName(name);
         Name = name;
     }
 
@@ -69,5 +64,20 @@ public class SpeakerState
         Level = level;
         LimiterActive = limiterActive;
         Faults = faults;
+    }
+
+    // The name is sent in State and Announce as 1 length byte + ASCII characters,
+    // so it must fit those rules.
+    private static void ValidateName(string name)
+    {
+        if (name.Length == 0 || name.Length > byte.MaxValue)
+        {
+            throw new ArgumentException("Name must be 1 to 255 characters long.", nameof(name));
+        }
+
+        if (!Ascii.IsValid(name))
+        {
+            throw new ArgumentException("Name must contain only ASCII characters.", nameof(name));
+        }
     }
 }

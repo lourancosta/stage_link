@@ -127,4 +127,33 @@ public class SpeakerStateTests
         Assert.True(state.LimiterActive);
         Assert.Equal(Faults.Overtemperature, state.Faults);
     }
+
+    [Fact]
+    public void SetName_ChangesName()
+    {
+        var state = new SpeakerState("Main L");
+
+        state.SetName("Main Left");
+
+        Assert.Equal("Main Left", state.Name);
+    }
+
+    [Theory]
+    [InlineData("")]
+    [InlineData("Café")]
+    public void SetName_RejectsInvalidNames(string name)
+    {
+        var state = new SpeakerState("Main L");
+
+        Assert.Throws<ArgumentException>(() => state.SetName(name));
+        Assert.Equal("Main L", state.Name);
+    }
+
+    [Fact]
+    public void SetName_RejectsNamesLongerThan255Characters()
+    {
+        var state = new SpeakerState("Main L");
+
+        Assert.Throws<ArgumentException>(() => state.SetName(new string('A', 256)));
+    }
 }

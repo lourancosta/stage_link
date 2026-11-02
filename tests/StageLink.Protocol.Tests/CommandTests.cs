@@ -13,6 +13,7 @@ public class CommandTests
     [InlineData(Command.SetGain, 0x20)]
     [InlineData(Command.SetMute, 0x21)]
     [InlineData(Command.SetTilt, 0x22)]
+    [InlineData(Command.SetName, 0x23)]
     [InlineData(Command.Subscribe, 0x30)]
     [InlineData(Command.Unsubscribe, 0x31)]
     [InlineData(Command.Telemetry, 0x32)]

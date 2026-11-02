@@ -27,6 +27,7 @@ public class Speaker
             Command.SetGain => HandleFixedPointSetting(request, _state.SetGain),
             Command.SetMute => HandleSetMute(request),
             Command.SetTilt => HandleFixedPointSetting(request, _state.SetTilt),
+            Command.SetName => HandleSetName(request),
             Command.Subscribe => HandleSubscribe(request, session),
             Command.Unsubscribe => HandleUnsubscribe(request, session),
             _ => Nack(request, NackCode.UnsupportedCommand),
@@ -76,6 +77,37 @@ public class Speaker
         writer.WriteFixedPoint(_state.Tilt);
 
         return Reply(request, Command.State, writer.ToArray());
+    }
+
+    // SetName data: the new name (1 length byte + ASCII), and nothing after it.
+    private Frame HandleSetName(Frame request)
+    {
+        byte[] payload = request.Payload;
+        string name;
+        try
+        {
+            name = new ByteReader(payload).ReadString();
+        }
+        catch (Exception ex) when (ex is EndOfStreamException or InvalidDataException)
+        {
+            return Nack(request, NackCode.InvalidPayload);
+        }
+
+        if (payload.Length != 1 + name.Length)
+        {
+            return Nack(request, NackCode.InvalidPayload); // extra bytes after the name
+        }
+
+        try
+        {
+            _state.SetName(name);
+        }
+        catch (ArgumentException)
+        {
+            return Nack(request, NackCode.InvalidPayload);
+        }
+
+        return Ack(request);
     }
 
     private static Frame HandleSubscribe(Frame request, Session session)
