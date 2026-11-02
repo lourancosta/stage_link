@@ -44,14 +44,33 @@ describe('SpeakerList', () => {
     expect(cards[1].textContent).toContain('127.0.0.1:51010');
   });
 
-  it("links each speaker's name to its details page", async () => {
+  it('shows the name as a heading, not a link', async () => {
     hub.speakers.set([speaker('SL-51000', 'Main L')]);
 
     const page = await render();
-    const link = page.querySelector('[data-testid="speaker-card"] a') as HTMLAnchorElement;
+    const card = page.querySelector('[data-testid="speaker-card"]') as HTMLElement;
 
-    expect(link.textContent).toContain('Main L');
-    expect(link.getAttribute('href')).toBe('/speakers/SL-51000');
+    expect(card.querySelector('h3')?.textContent).toContain('Main L');
+    expect(card.querySelector('h3 a')).toBeNull();
+  });
+
+  it('has a details button that opens the speaker page', async () => {
+    hub.speakers.set([speaker('SL-51000', 'Main L')]);
+
+    const page = await render();
+    const details = page.querySelector('[data-testid="speaker-card"] [data-testid="details-link"]') as HTMLAnchorElement;
+
+    expect(details.textContent).toContain('Details');
+    expect(details.getAttribute('href')).toBe('/speakers/SL-51000');
+  });
+
+  it("labels each details button with the speaker's name for screen readers", async () => {
+    hub.speakers.set([speaker('SL-51000', 'Main L'), speaker('SL-51010', 'Main R', 51010)]);
+
+    const page = await render();
+    const labels = Array.from(page.querySelectorAll('[data-testid="details-link"]')).map((a) => a.getAttribute('aria-label'));
+
+    expect(labels).toEqual(['Details for Main L', 'Details for Main R']);
   });
 
   it('shows compact controls and live telemetry in every card', async () => {
